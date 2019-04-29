@@ -72,6 +72,8 @@
 #'
 #' @return NOTHING
 #' @export
+#' 
+#' @import pls
 #'
 #' @examples 
 #' dfile <- system.file("foodstuff_powder","Y_foodstuff.txt",package="inspectrar")
@@ -3412,7 +3414,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
                              "\nRMSEP summary:",
                              utils::capture.output(pls::RMSEP(plsFit[[1]],estimate="all")),
                              "\nR2 summary:",
-                             utils::capture.output(R2(plsFit[[1]],estimate="all"))
+                             utils::capture.output(pls::R2(plsFit[[1]],estimate="all"))
                             )
     }
     

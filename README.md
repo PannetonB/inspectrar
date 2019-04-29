@@ -7,4 +7,7 @@ also provided.
 
 To install in R, use the _**devtools**_ package and the following command:  
 
-__devtools::install_github("pannetonb/inspectrar")__
+__devtools::install_github("pannetonb/inspectrar", build_opts = c("--no-resave-data", "--no-manual"))__
+
+The default build_opts has a "--no-build-vignettes". Removing forces building the vignettes.
+After installation, you may have to restart **R** or **RStudio**.
