@@ -1,0 +1,191 @@
+---
+title: "A typical InSpectoR session"
+author: "Bernard Panneton"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+fig_caption: yes
+tab_caption: yes
+vignette: >
+  %\VignetteIndexEntry{A typical InSpectoR session}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette will walk you through a short *InSpectoR* working session. This helps in quickly understanding how it can be useful for you and to get started. The *Using InSpectoR* vignette details all functionalities and gives a detailed description of the required format for the data files. Two data sets are bundled with this package, one for developing a classification model using a partial least-square discriminant analysis (PLSDA) and the other one for developing a partial least-square regression (PLS) for predicting a quantitative variable. This vignette will be based on the foodstuff_powder data set for PLSDA:
+
+> The *foodstuff_powder* data set is composed of induced-fluorescence spectra obtained under excitation at four different wavelenghts. This is front-face fluorescence where a small light beam is focused on the surface of a solid sample (here foodstuff powders) and the emitted fluorescence is collected by a fiber optic to a spectrometer. The experiment involved repetitions and within a repetition, repeated measurements were performed at 3 different locations over the sample surface (*PosRep*). The *Y* file (*Y_foodstuff.txt*) contains sample IDs, a code indicating the instrument used for acquisition, the foodstuff type, drying mode, the supplier for the powders, the repetition and a field named *PosRep* which correspond to repeated measurements at different points over the sample surface. Data were obtained from experiments conducted at the St-Hyacinthe research and development centre, St-Hyacinthe, Qc, Canada, by Dr Alain Clément and Dr Akier Assanta Maf. The nature of foodstuff is not identified to avoid misleading interpretation of preliminary tests in the lab.  
+
+## Creating your own data set playground
+
+First, it is recommended to copy the data sets provided with this package to a personal location. On Windows, it can be copied to your *Documents* folder with following lines of code (copy to your R console). This creates a *InSpectraR_Vignette_Data* in your personnal *Documents* directory.
+
+```{r, eval=FALSE, echo=TRUE}
+ # Create a InSpectraR_Vignette_Data directory in user's Documents
+ toDir <- "~/InSpectraR_Vignette_Data"
+ if (!dir.exists(toDir)) dir.create(toDir)
+
+ # Copy foodstuff_powder data set to newly created directory
+ toDir <- "~/InSpectraR_Vignette_Data/foodstuff_powder"
+ dfile <- system.file("foodstuff_powder","Y_foodstuff.txt",package="InSpectoR")
+ fromDir <- dirname(dfile)
+ lesfichiers <- list.files(fromDir)
+ if (!dir.exists(toDir)) dir.create(toDir)
+ file.copy(from=file.path(fromDir,lesfichiers),toDir)
+ 
+ # Copy foodstuff_freshness data set to newly created directory
+ dfile <- system.file("foodstuff_freshness","Y_freshness.txt",package="InSpectoR")
+ fromDir <-dirname(dfile)
+ toDir <- "~/InSpectraR_Vignette_Data/foodstuff_freshness"
+ if (!dir.exists(toDir)) dir.create(toDir)
+ lesfichiers <- list.files(fromDir)
+ file.copy(from=file.path(fromDir,lesfichiers),toDir)
+```
+
+## Loading and inspecting spectra in *InSpectoR*
+Launch *InSpectoR* from a R console
+```{r, echo=TRUE,eval=FALSE}
+library(InSpectoR)
+InSpectoR()
+
+```
+
+In the GUI, click on the *OPEN a Y file* button and navigate to the "~/InSpectraR_Vignette_Data/foodstuff_powder" directory, select the *Y_foodstuff.txt* file. When asked to create a backup, click *OK*. Then click on the first row (not the header row!) in the *Y data* table. At this stage, the GUI should look like:
+
+```{r screen1, echo=FALSE, out.width="100%", fig.align="center"}
+knitr::include_graphics("Session_FirstScreen.png")
+
+```
+
+You may also want to go to the  
+"~/InSpectraR_Vignette_Data/foodstuff_powder/BCK_Files_00" directory to view its content. It is identical to the one of the main data set directory.
+
+The GUI is organised around a series of tabs at the top. At this stage, the *Data selection* is active. This is were you can look at the spectra in the data set. You can play around with the content of the two frames on the left part of the *Data selection* tab. The top one (*Spectral data files - Select*) is for selecting data types and the lower one (*Y data*) is for selecting samples. For example, selecting data types *EX1_foodstuff_I.txt* and *EX4_foodstuff_I.txt* together with the first sample in the series of both *13* and *41* results in:  
+
+```{r screen2, echo=FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics("Session_Screen2.png")
+
+```
+
+You can also click on column headers in the *Y data* table. Keeping data types *EX1* and *EX4* and clicking the *Foodstuff* header results in:  
+
+```{r screen3, echo=FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics("Session_Screen3.png")
+
+```
+
+On the plot, the *fs_1* spectrum is the average from all *fs_1* spectra in the data set.  
+
+Right-clicking on the plot area opens a contextual menu for selecting a sample (click for the closest one or drag a rectangle to select many), zooming, copying to the clipboard or saving to PDF or WMF files. Play with these! (**N.B.** there seems to be a bug when zooming where in some cases line types get mixed up, perhaps the *Cairo* device.)  
+
+The plot can also be customised by selecting the minimum and maximum values of both the horizontal and vertical axis in the *Properties* frame (top-centre).  
+
+The *Hints* frame summarises the possible interactions with the plot area, the table area and the *Properties* frame for easy reference.  
+
+## Modifying the data set
+The buttons in the top-centre part of the *Data selection* tab are used to modify/customise the data set. The *Define new factor* button opens a modal GUI where you select existing factors in the *Y data* table to create a new one that extends to all interactions between the selected factors. For example, select *Foodstuff* and *Drying* and name the new factor *Test*, do not check *Save new factor...* and click *OK*. This modifies the *Y data* table to include this new factor:  
+
+```{r screen4, echo=FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics("Session_Screen4.png")
+
+```
+
+Now, click on the *Find duplicate samples...* button and select *F*  when prompted to keep first or last. Notice that in the *Y data* table all duplicates but the first one of a series are selected and the plot is updated accordingly. As was explained above, the measurements for a repetition were repeated in space 3 times and the column *PosRep* identifies these 3 repetitions. At this point, we could (but don't!) remove these selected spatial repetitions by clicking on *Remove selected samples*. These *PosRep* were performed because powders do not form an homogenous surface and sampling at 3 different points and averaging over these 3 measurements should smooth out some of the variability. This is what the *Aggregate spectra* button can be used for. Click on this button and choose *PosRep* in the modal GUI prompting you to pick a factor. You will be prompted for a backup of the data set before performing the aggregation, and the required averages are computed and the data set files modified. As the data set was modified, the plot is cleared as well as sample selection. Notice that the labels in the first column of the *Y data* table have changed. A *\_1* was added to the original label. In this case, it is all *\_1* because for a given sample ID, there was only one series of spatially repeated measures. A *\_2*, *\_3*,... suffix is used for 2, 3 or more series with the same original sample ID.
+
+The *Remove selected samples* button can be used at all times where row(s) are selected in the *Y data* table. This will simply remove the corresponding samples from the data set asking for a backup before deleting.  
+
+The *Merge Y data files* button is not used in this demo, see the *Using InSpectoR* vignette for details.
+
+## Pretreating the spectra
+Before leaving the *Data selection* tab, select all four data types. Then click on the *PrePro* tab. The following GUI should appear:
+
+```{r screen5, echo=FALSE, out.width="75%", fig.align="center"}
+knitr::include_graphics("Session_Screen5.png")
+
+```
+
+This interface is for selecting options for pretreating the spectra on a per spectrum basis. This interface adjusts dynamically to the selection of data types in the *Data selection* tab and possible options are adjusted to maintain coherence between them. The pretreatments will be applied from top to bottom: truncation with *Set wavelength/wavenumber limits*, then *Scaling on a per spectrum basis* and finally *Savitzky-Golay filtering*.  
+
+The truncation limits simply define lower and upper bound of the x-axis for each data type.  
+
+There are three options for per spectrum scaling including *None*. *Value* takes a value in each spectrum (*e.g.* a peak) and divide the whole spectrum by this value. The value is defined in the *Centre values* comboboxes. It could a single value when *Bandwidth* is 0 or the average over the bandwidth centered at the *Centre value* (*Centre value* ± *Bandwidth*). The *Mean=1* option scales each spectrum such that its mean value is equal to 1. This last option is useful when only the spectrum shapes matter and for visualising the spectra of different types on comparable vertical scales.  
+
+Finally, in the section for *Savitzky-Golay* filtering, one select if it is applied using the checkboxes and defines the *Window size*, *Deriv. order* and *Polyn. order* options.  
+
+Let's try this. Leave the limits as they are, select *Mean=1* for all data types, apply Savitzky-Golay to all data types with window size to 17, derivative order to 0 and polynomial order to 2 (this should smooth out noise) and click *Apply* (clicking *Apply* is only required if one wants to go back to the "Data selection tab*, otherwise* pretreatment is automatically performed when switching to other tabs.). Go back to the *Data selection* tab and select row 1 (*1\_1*) in the *Y data* table, the plot should look like:  
+
+```{r screen6, echo=FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics("Session_Screen6.png")
+
+```
+
+Leave data type selection as is and move to the next section. Modifying the data type selection will cancel the pretreatment options...
+
+## Principal component analysis
+Click on the *PCA* tab. The PCA GUI pops up with default options and a default plot. This is a biplot of scores on the first and second principal axis for the first of the selected data types. Let's customise this plot: select *Test* as the *Point coloring option* and **0.95** for *Data ellipse plotting* and click *Update plot* to get:
+
+```{r screen7, echo=FALSE, out.width="50%", fig.align="center"}
+knitr::include_graphics("Session_Screen7.png")
+
+```
+
+Samples from the same class are well grouped together! Play around with the options to generate various plots useful for assessing data quality. At any point, you can save the scores from the PCA for all data types or only the current one. You can also save the PCA models for all data types to apply them later on new data. We will save models for later use in this demo. Click *Save PCA model* and follow the on-screen instructions to store your models under:  
+
+~/InSpectraR_Vignette_Data/foodstuff_powder/Models/FirstPCA.RData  
+
+## Developing a PLSDA model
+Now that we are satisfied that the data set looks good with no obvious outlier, let's go ahead to develop a PLSDA model. Click on the *PLSDA* tab. Before performing the calculation, options must be set in the left-hand part of the GUI. One or more data types and the factor to predict are selected. Select data types *EX1* and *EX3* and select *Test* as the factor to predict. Then leave the *Prop. of data for training* to 0.6, the *Resampling method* to *cv* (cross-validation) and set the *Number of folds* to 5. In the *Training options* frame, set the *Nb of LVs* to 20, the *PreProcessing* option to *None*, the *Prediction method* to *softmax* and the *Performance metric* to *Kappa*. Leave the *Aggregation options* to *concatenate*. Ready? Press *Compute model* and wait...  
+
+You can look at some output in the *Console output* frame and save the content of this frame for the last developed model with the *Console to txt* button.  
+
+You can also assess the results graphically. Do to the nature of the cross-validation, your input will differ from mine but the general trends should be the same. Click the *Accuracy - VL plot* button. Accuracy does not improve past 5 latent variables in the model and scrolling up the *Console output*, you can see that this is the number of latent variables that was selected.  
+
+Now, you can look at the confusion matrices for both the training data set (60% of the whole set) and the test data set. You can also plot boxplots of probabilities which I find quite useful in assessing overall model performance visually. Select the *Test* option in the *Probs boxplot* subframe and *Plot* to get something like: 
+
+
+```{r screen8, echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics("Session_Screen8.png")
+
+```
+
+In this plot (remember that what you got may differ from what is shown here, cross-validation!), each panel groups data from the same known class. Each box summarises the predicted probabilities of belonging to all classes. The expectation is to have the *Pred* box for the same class as given in the panel title clearly above all others. This is what shows on the above figure indicating excellent classification performances. Only in the *True: fs_2.Ref* panel, one can see that two points (one for each of the *fs_2.Cold* and *fs_2.Ref* classes) are close (0.23 and 0.30) indicating potential confusion between the *fs_2.Cold* and *fs_2.Ref* classes.  
+
+You can also look at the *Show probs* button that opens a modal GUI where you can use data filtering for a closer examination of the predicted probabilities. Finally, the *Plot B-coeff* button plots the regression coefficients:  
+
+
+```{r screen9, echo=FALSE, out.width="80%", fig.align="center"}
+knitr::include_graphics("Session_Screen9.png")
+
+```
+
+
+Even if spectra from selected data types are concatenated into a single vector, the regression coefficient vector is splitted according to data types for plotting. This helps in assessing the relative contribution of each data type and each region within each data types to the overall prediction.  
+
+We can now use *Save model* to save our PLSDA. Follow the on-screen instructions to save the model to:  
+  
+~/InSpectraR_Vignette_Data/foodstuff_powder/Models/FirstPLSDA.RData
+
+## Applying models
+Before applying the models we just saved, new data are loaded. Go back to the *Data selection* tab and open a new *Y* data file. Select the following file:  
+  
+~/InSpectraR_Vignette_Data/foodstuff_powder/Y_New.txt  
+
+This will open a small data set with only 6 samples. Click on the *Apply models* tab and click on the *Apply PCA model* button. Pick the PCA model file that you saved previously, look at the model summary and click *OK*. This opens a modal GUI to visualise the results. Click on the *Plot results* button to get:
+
+```{r screen10, echo=FALSE, out.width="95%", fig.align="center"}
+knitr::include_graphics("Session_Screen10.png")
+
+```
+
+The plot shows the results of the PCA on the training data set with colored points and the new data is shown as black circled white symbols. Various options are available to customise the data presentation. When done, close this modal GUI to go back to the main *InSpectoR* window.  
+
+We now turn to the PLSDA model. Click on *Apply PLSDA model*. Pick the PLSDA model file that you saved previously, look at the model summary and click *OK*. This opens a modal GUI to visualise the results. This is a table showing the predicted class (*plsda_cl* column) and the probabilities for each of the classes. This table can be saved to a text file.
+
+## In the end
+This concludes our short demo. You can now close the *InSpectoR* GUI. Returning to the R console, issue a *ls()* command. You will notice that *InSpectoR* leaves several objects that you can now use to perform further analysis. The *Using InSpectoR* vignette provides details about these objects.
