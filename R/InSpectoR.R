@@ -74,7 +74,7 @@
 #' @export
 #'
 #' @examples 
-#' dfile <- system.file("foodstuff_powder","Y_foodstuff.txt",package="InSpectoR")
+#' dfile <- system.file("foodstuff_powder","Y_foodstuff.txt",package="inspectrar")
 #' InSpectoR(dfile,0,1600,1024)
 InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800) 
 #*************************************************************************
@@ -173,7 +173,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #******************************************************************************
 #-------------------------
   #Load logo image in package
-  logoimg <- system.file("InSpectraR_Logo_600_130V.png",package="InSpectoR")
+  logoimg <- system.file("InSpectraR_Logo_600_130V.png",package="inspectrar")
   if (!file.exists(logoimg)) 
     logoimg<-"InSpectraR_Logo_600_130V.png"  #Load logo image
   

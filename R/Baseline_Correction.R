@@ -8,6 +8,8 @@
 #' function with \emph{method='modpolyfit'}. A GUI helps the user
 #' to select parameters to perform the fit.
 #'
+#' @param lefichier a filename to work on.
+#'
 #' @return
 #'    Baseline corrected spectra and baseline spectra are stored in files
 #'    with the same name as the input file but with "Corrected" or "Baseline"
@@ -15,8 +17,9 @@
 #' @export
 #'
 #' @examples
-#' Baseline_Correction()
-Baseline_Correction <- function()
+#' dfile <- system.file("raman","Raman_I.txt",package="inspectrar")
+#' Baseline_Correction(dfile)
+Baseline_Correction <- function(lefichier=NULL)
 {
   #library(gWidgets2)
   #library(gWidgets2RGtk2)
@@ -29,7 +32,7 @@ Baseline_Correction <- function()
   # library(graphics)
   
   scriptDir=utils::getSrcDirectory(function(x) {x})
-  setwd(scriptDir)
+  try(setwd(scriptDir),silent=TRUE) #Try because does not work when calling from shortcut/package
   
   
   MakeSpinner <- function()
@@ -71,7 +74,7 @@ Baseline_Correction <- function()
   }
   
   
-  lefichier=gWidgets2::gfile("Select a Raman data file",initial.dir = scriptDir)
+  if (is.null(lefichier)) lefichier=gWidgets2::gfile("Select a Raman data file",initial.dir = scriptDir)
   dum1=utils::read.table(lefichier,sep="\t", dec=".",header=FALSE)
   wn=as.numeric(dum1[1,-1])
   sp=as.matrix(dum1[-1,-1])
@@ -126,19 +129,3 @@ Baseline_Correction <- function()
   
   
 }
-# setwd("~/My Documents/Projets/Spectro/SAIV_Version_Alain_2016/Progs/InSpectoR/Test_PlayField")
-# dum1=read.table("C:/Users/pannetonb/Documents/My Documents/Projets/Spectro/SAIV_Version_Alain_2016/Progs/InSpectoR/Data/Bieres 4 juillet 2017/Raman_2017-07-04_I.txt",sep="\t", dec=".",header=FALSE)
-# wn=as.numeric(dum1[1,-1])
-# sp=as.matrix(dum1[-1,-1])
-# 
-# library(baseline)
-# 
-# bc.modpolyfit <- baseline(sp, method='modpolyfit', deg=7,t=wn, rep=50, tol =0.01)
-# 
-# for (k in 1:28) {
-#    par(mfrow=c(3,1))
-#    plot(wn,bc.modpolyfit@spectra[k,],type="l")
-#    plot(wn,bc.modpolyfit@baseline[k,],type="l")
-#    plot(wn,bc.modpolyfit@corrected[k,],type="l")
-#    lines(wn,rep(0,length(wn)),col="red")
-#    }

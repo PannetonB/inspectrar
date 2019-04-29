@@ -14,7 +14,7 @@
 #' @export
 #' 
 #' @examples 
-#' dfile <- system.file("insect_powder","Y_insect.txt",package="InSpectoR")
+#' dfile <- system.file("foodstuff_powder","Y_foodstuff.txt",package="inspectrar")
 #' InSpectoR(dfile,0,1600,1024)
 #' #**************************************************
 #' #GUI may wait for your answer for creating a backup!

@@ -1,0 +1,29 @@
+Package: inspectrar
+Type: Package
+Title: GWidgets2/RGtk2 GUI for viewing and modeling spectroscopy data
+Version: 0.1.0
+Authors@R: person("Bernard", "Panneton", email = "pannetonb@gmail.com",
+    role = c("aut", "cre"))
+Description: The main function in inspectrar is InSpectoR. It opens a data set comprising spectral data from
+    several sources on a given set of samples. Samples are described
+    in a Y file and spectra from each source (e.g. NIR, fluorescence, Raman...)
+    are stored in XData files. All spectra can be visualised and some
+    data cleaning and manipulation can be performed. Spectra can then be
+    preprocessed. Further exploration of the data set can be performed
+    based on principal component analysis. Finally, preprocessed data
+    can be used to develop pls models for classification or prediction of
+    a continuous variable. Trained models can be applied to new data.
+    TESTED ON WINDOWS 10.
+Depends: pls
+Imports: gWidgets2, gWidgets2RGtk2, cairoDevice, png, grid, ChemoSpec,
+         chemometrics, prospectr, MASS, car, caret, parallel, scales,
+         doParallel, tidyr, tools, reshape2, baseline, graphics,stats
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown,
+    bookdown
+VignetteBuilder: knitr
