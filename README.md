@@ -7,4 +7,4 @@ also provided.
 
 To install in R, use the _**devtools**_ package and the following command:  
 
-__devtools::install_github("panneton/inspectrar")__
+__devtools::install_github("pannetonb/inspectrar")__
