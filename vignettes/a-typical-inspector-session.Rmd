@@ -33,14 +33,14 @@ First, it is recommended to copy the data sets provided with this package to a p
 
  # Copy foodstuff_powder data set to newly created directory
  toDir <- "~/InSpectraR_Vignette_Data/foodstuff_powder"
- dfile <- system.file("foodstuff_powder","Y_foodstuff.txt",package="InSpectoR")
+ dfile <- system.file("foodstuff_powder","Y_foodstuff.txt",package="inspectrar")
  fromDir <- dirname(dfile)
  lesfichiers <- list.files(fromDir)
  if (!dir.exists(toDir)) dir.create(toDir)
  file.copy(from=file.path(fromDir,lesfichiers),toDir)
  
  # Copy foodstuff_freshness data set to newly created directory
- dfile <- system.file("foodstuff_freshness","Y_freshness.txt",package="InSpectoR")
+ dfile <- system.file("foodstuff_freshness","Y_freshness.txt",package="inspectrar")
  fromDir <-dirname(dfile)
  toDir <- "~/InSpectraR_Vignette_Data/foodstuff_freshness"
  if (!dir.exists(toDir)) dir.create(toDir)
@@ -51,7 +51,7 @@ First, it is recommended to copy the data sets provided with this package to a p
 ## Loading and inspecting spectra in *InSpectoR*
 Launch *InSpectoR* from a R console
 ```{r, echo=TRUE,eval=FALSE}
-library(InSpectoR)
+library(inspectrar)
 InSpectoR()
 
 ```
@@ -154,7 +154,7 @@ knitr::include_graphics("Session_Screen8.png")
 
 ```
 
-In this plot (remember that what you got may differ from what is shown here, cross-validation!), each panel groups data from the same known class. Each box summarises the predicted probabilities of belonging to all classes. The expectation is to have the *Pred* box for the same class as given in the panel title clearly above all others. This is what shows on the above figure indicating excellent classification performances. Only in the *True: fs_2.Ref* panel, one can see that two points (one for each of the *fs_2.Cold* and *fs_2.Ref* classes) are close (0.23 and 0.30) indicating potential confusion between the *fs_2.Cold* and *fs_2.Ref* classes.  
+In this plot (remember that what you got may differ from what is shown here, cross-validation!), each panel groups data from the same known class. Each box summarises the predicted probabilities of belonging to all classes. The expectation is to have the *Pred* box for the same class as given in the panel title clearly above all others. This is what shows on the above figure indicating excellent classification performances.   
 
 You can also look at the *Show probs* button that opens a modal GUI where you can use data filtering for a closer examination of the predicted probabilities. Finally, the *Plot B-coeff* button plots the regression coefficients:  
 
