@@ -91,7 +91,7 @@ knitr::include_graphics("InSpectraR_Logo_600_130V.png")
 
 The *InSpectraR* package bundles the *InSpectoR* script and associated functions together with some data used in the help pages for the package and this vignette. *InSpectoR* creates a GUI (Figure \@ref(fig:fig1-1)) for working with spectral data. This project started from the need to easily view spectra for quality control before performing further processing and develop chemometrics models. One of the unique feature of this tool is its ability to work on spectra from a diversity of sources (*e.g.* fluorescence, Raman, transmittance...). Raw data can be visualised and tools are provided to select and organise the data for viewing and data set editing. Further developments of *InSpectoR* included tools for preprocessing spectral data on a per spectrum basis (*e.g.* filtering, scaling...). Principal component analysis can also be performed to further help in quality control. Finally partial least square regression for classification or prediction was implemented both in model development and application modes.
 
-As can be seen on Figure Figure \@ref(fig:fig1-1), the interface has a number of tabs ("Data selection", "Apply models",...). Each tab corresponds to a specific task. This vignette documents the functionalities implemented for each task. But first, the structure of the data will be explained.
+As can be seen on Figure \@ref(fig:fig1-1), the interface has a number of tabs ("Data selection", "Apply models",...). Each tab corresponds to a specific task. This vignette documents the functionalities implemented for each task. But first, the structure of the data will be explained.
 
 <br><br>  
 
@@ -136,7 +136,7 @@ There are four components:
 2. ***somename*** must be the same as ***somename*** in the accompanying *Y* file. 
 This part of the name creates the link to the *Y* file.  
 
-3. the &ast; before the file extension could be anything.  
+3. the &ast; before the file extension could be anything but should start with a letter.  
 
 4. *txt* is a mandatory file extension.  
 
@@ -147,7 +147,7 @@ As an other example, the content of the *foodstuff_powder* directory installed w
 ```{r, echo=FALSE}
 dir("../inst/foodstuff_powder")
 ```  
-It contains a *Y* data file and four *X* files corresponding to fluorescence spectra acquired under excitation at 4 different wavelengths.  
+It contains two *Y* data files and four *X* files corresponding to fluorescence spectra acquired under excitation at 4 different wavelengths for each of the *Y* data files.  
 
 [TOC](#TOC)  
 
@@ -200,7 +200,7 @@ grid()
 
 # Using the *InSpectoR* GUI
 
-A typical working session will be used to demonstrate the various functionalities. When the *InSpectoR* script is invoked with no parameters, the GUI is displayed, your computer is set up for parallel processing (used with some functions from the *caret* package) and only the *Data selection* tab is visible. *InSpectoR* can be called with parameters to disable parallel computing, automatically load data and to specify the initial dimensions of the GUI. See the help page for *InSpectoR* for details.  
+When the *InSpectoR* script is invoked with no parameters, the GUI is displayed, your computer is set up for parallel processing (used with some functions from the *caret* package) and only the *Data selection* tab is visible. *InSpectoR* can be called with parameters to disable parallel computing, automatically load data and to specify the initial dimensions of the GUI. See the help page for *InSpectoR* for details.  
 
 Tooltips pop up when hovering the mouse over the interface. Stay over an area and after about one second, a tooltip shows up. Tooltips were not implemented for all GUI components. Usually, tooltips are not implemented when the action(s) linked to a GUI component is obvious given the context. 
 
@@ -230,7 +230,7 @@ The frame labelled *Spectral data files - Select* in the top-left corner of the 
 [TOC](#TOC)
 
 ### Visualising spectra  
-Clicking on a line in the *Y data* table will display the corresponding spectrum (or spectra when more than one data type was selected). More than one line can be selected (*ctrl-click* to add or remove and *shift-click* to extend selection) to show spectra from multiple samples (*i.e.* lines in the *Y data* table).  
+Clicking on a row in the *Y data* table will display the corresponding spectrum (or spectra when more than one data type was selected). More than one line can be selected (*ctrl-click* to add or remove and *shift-click* to extend selection) to show spectra from multiple samples (*i.e.* rows in the *Y data* table).  
 
 A user can also click one of the column headers in the *Y data* table. The *Y data* table will be sorted (clicking more than once will alternate between ascending and descending sorting). Further, when the selected column contains a factor, this will generate a plot of all samples aggregated with the *mean* function using the *aggregate* function from the *base* package. If the selected column contains numeric data, the user will be prompted for options for converting the numeric data to factor data. When prompted, the user can cancel to avoid conversion to factor data. In this case, the data will be sorted but the plot is not updated. 
 
@@ -250,7 +250,7 @@ Right-clicking in the plot area invokes a context menu for selecting the type of
 [TOC](#TOC)
 
 ### Manipulating the data set
-There is a series of buttons in the top-centre part of the *Data Selection* tab. These are used to work on the loaded *Y* data.  As the active data set is modified, the plot area is clearer when pressing any of these buttons.  
+There is a series of buttons in the top-centre part of the *Data Selection* tab. These are used to work on the loaded *Y* data.  As the active data set is modified, the plot area is cleared when pressing any of these buttons.  
 
 [TOC](#TOC)  
 
@@ -269,7 +269,7 @@ This is useful when repeated measurements are performed on the same sample and i
 [TOC](#TOC)  
 
 #### Define subset
-When this button is pressed, a modal dialog is open to define a subset of data. Subsets are defined from factors identified in the *Y* data. For each factor, one can choose levels to construct subsets. Selection from all factors are ANDed to construct a subset. All samples are selected by default or when the defined subset is empty. The subsetting does not affect to content of the data files. It is reflected in the *Y data* frame of the GUI and all subsequent operations are based on the defined subset. To clear the subsetting operation and recover the whole data set, just press the *Define subset* button and accept the default selection in the modal window. This clears the plot area.  
+When this button is pressed, a modal dialog is opened to define a subset of data. Subsets are defined from factors identified in the *Y* data. For each factor, one can choose levels to construct subsets. Selection from all factors are ANDed to construct a subset. All samples are selected by default or when the defined subset is empty. The subsetting does not affect to content of the data files. It is reflected in the *Y data* frame of the GUI and all subsequent operations are based on the defined subset. To clear the subsetting operation and recover the whole data set, just press the *Define subset* button and accept the default selection in the modal window. This clears the plot area.  
 
 [TOC](#TOC)    
 
@@ -279,7 +279,7 @@ Clicking on this button will automatically identified duplicate values in the fi
 [TOC](#TOC)  
 
 #### Remove selected samples
-Clicking on this button will create a new data set by removing all samples (*i.e.* lines) in the *Y data* frame of the GUI. The user will be prompted to confirm this action. Then, a backup of the current data set is created before removing samples and a new data set is redefined with the selected samples removed.  
+Clicking on this button will create a new data set by removing all samples (*i.e.* rows) in the *Y data* frame of the GUI. The user will be prompted to confirm this action. Then, a backup of the current data set is created before removing samples and a new data set is redefined with the selected samples removed.  
 
 [TOC](#TOC)  
 
@@ -327,12 +327,12 @@ There are four types of plot to choose from: *Scores*, *Var. explained*, *Score 
 [TOC](#TOC)   
 
 ### *Pick PC1* and *Pick PC2*  
-For score biplots, the *Pick PC1* and *Pick_PC2* comboboxes define the PC along the horizontal and the vertical axis respectively. Loading plots plot loadings as a function of wavelength or wavenumber for all PCs in the range from *Pick_PC1* to *Pick_PC2*. On the plot, curves corresponding to loadings on different PCs are offset vertically for readability. The value of the offset is indicated in the legend of the plot. For other plots, these two values have no effect.  
+For score biplots, the *Pick PC1* and *Pick_PC2* comboboxes define the PC along the horizontal and the vertical axis respectively. The *Loadings* plot type shows loadings as a function of wavelength or wavenumber for all PCs in the range from *Pick_PC1* to *Pick_PC2*. On the plot, curves corresponding to loadings on different PCs are offset vertically for readability. The value of the offset is indicated in the legend of the plot. For other plots, these two values have no effect.  
 
 [TOC](#TOC)   
 
 ### *Point coloring options*
-In this frame, users can select a factor for coloring points (each point in a score biplot or a score and ortho distance plot correspond to one row or sample in the *Y data* frame of the *Data selection* tab). Color code will be displayed in a legend when the plot is updated.  
+In this frame, users can select a factor for coloring points (each point in a score biplot or a score and ortho distance plot corresponds to one row or sample in the *Y data* frame of the *Data selection* tab). Color code will be displayed in a legend when the plot is updated.  
 
 [TOC](#TOC)   
 
@@ -344,7 +344,7 @@ This frame has two comboboxes. This first one is for selecting the factor that w
 3. *Orthogonal distance*: only points with large residual error for a PCA model with the *Estimated number of significant PCs* are labeled  
 4. *Lev. & ortho*: only points with both high leverage and large orthogonal distance for a PCA model with the *Estimated number of significant PCs*  are labeled  
 
-The leverage and orthogonal distance are estimated using the *pcaDiagplot* function fo the *chemometrics* package.  
+The leverage and orthogonal distance are estimated using the *pcaDiagplot* function from the *chemometrics* package.  
 
 [TOC](#TOC)   
 
@@ -379,18 +379,7 @@ A right-click on the plot area invokes a contextual menu with 6 items with the f
 ### Saving PCA results  
 There are two buttons for saving PCA results:  
 
-1. *Save scores* saves PCA scores to a text file. The user is prompted to select a file name.  Then a modal GUI asks the user if scores should be saved for all selected data types of only the current one (the current one is the one selected in the *Spectral data set for PCA* combobox, the list in the combobox is the list of selected data types). Then an other modal GUI appears for selecting the desired number of principal components to retain. The resulting file is a csv file with a *.txt* extension and a header. The number of rows in the file is equal to the number of samples in the current subset (+1 for the header) and the number of columns is equal to the sum of the number of principal components selected for each data type (+1 for the sample ID in the first column). [Table 3.1](#tab:tab3-1) shows an example. The column headers are constructed from the data type name and the PC number. *EX3.PC2* stands for the scores on the second principal component for data of type *EX3*.
-
-
-```{r tab3-1, echo=F}
-library(kableExtra)
-# dum=read.csv(file="~/Data/foodstuff_powder/Scores/test02.txt",header = TRUE, dec=".", sep=",")
-# nc <- seq_len(ncol(dum))
-# colnames(dum)[1] <- ""
-# knitr::kable(dum[1:5,], caption="Content of a score file.", digits=3) %>% 
-# kableExtra::kable_styling(bootstrap_options=c("striped"), full_width = T, font_size = 12)  %>% 
-# kableExtra::column_spec(nc,width="30em")
-```
+1. *Save scores* saves PCA scores to a text file. The user is prompted to select a file name.  Then a modal GUI asks the user if scores should be saved for all selected data types of only the current one (the current one is the one selected in the *Spectral data set for PCA* combobox, the list in the combobox is the list of selected data types). Then an other modal GUI appears for selecting the desired number of principal components to retain. The resulting file is a csv file with a *.txt* extension and a header. The number of rows in the file is equal to the number of samples in the current subset (+1 for the header) and the number of columns is equal to the sum of the number of principal components selected for each data type (+1 for the sample ID in the first column). The column headers are constructed from the data type name and the PC number. *EX3.PC2* stands for the scores on the second principal component for data of type *EX3*.
 
 
 
