@@ -11,6 +11,8 @@ __devtools::install_github("pannetonb/inspectrar", build_opts = c("--no-resave-d
 
 The default build_opts has a "--no-build-vignettes". Removing forces building the vignettes.  
 
-For building the vignettes, the following packages are required: _**kableExtra**_ and _**bookdown**_.  
+For building the vignettes, the following packages are required:  _**kable**_, _**kableExtra**_ and _**bookdown**_.
+Also, make sure a recent version of _**pandoc**_ is installed. This may be installed using the _install.pandoc()_ 
+function for the _**installr**_ package.
 
 After installation, you may have to restart **R** or **RStudio**.

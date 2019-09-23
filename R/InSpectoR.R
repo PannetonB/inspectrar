@@ -2905,8 +2905,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   interact_w_pca_plot <- function(h,...)
     # Manage user interaction with graphics
     # IF isSelectMode is TRUE (isZoomMode and IsZoomAll are false):  
-    #   This finds sample selected by mouse click or samples
-    #   isolated with mouse drag over. Just clicking cancel selection.
+    #   This finds samples isolated by dragging a rectangle with mouse. 
+    #   Just clicking cancel selection.
     # IF isZoomMode is TRUE (isSelectMode and isZoomAll are FALSE):
     #   One click zoom in by a factor of 1.5 around the clicked point.
     #   Dragging a rectangle - zoom to rectangle
