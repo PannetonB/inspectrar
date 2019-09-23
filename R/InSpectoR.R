@@ -2411,6 +2411,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     gWidgets2::size(w) <- c(500,500)
     gWidgets2::visible(w)
     
+    wspin<-MakeSpinner()
+    
     if (length(span_var)>0){
       fc = interaction(as.factor(Ys_df[,gr_var]),as.factor(Ys_df[,span_var]),sep = "_")
     }else
@@ -2433,20 +2435,25 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     dum=All_XData
     #Update with new IDs in first column so it is consistent with newY
     dum=lapply(dum,function(x){ 
+      x[1]=lapply(x[1],as.character)
       x[-1,1] <- as.character(newY[,1])
       return(x)
     })
+    
     #Compute means and aggregate
     dum=lapply(dum,function(x) aggregate(x[-1,-1],by=list(x[-1,1]), FUN=mean))
     indi=as.list(1:length(dum))
     
     dum=lapply(indi, function(ii){
+      dum[[ii]][1]=lapply(dum[[ii]][1],as.character)
       #Insert column headers
       colnames(dum[[ii]])[1] <- colnames(All_XData[[ii]])[1]
       dum[[ii]] <- rbind(All_XData[[ii]][1,],dum[[ii]])
     })
+    
     #Apply proper name to 1rst column
     dum=lapply(dum,function(x){
+      x[1]<-lapply(x[1],as.character)
       x[1,1] <- colnames(newY)[1]
       return(x)
     })
@@ -2481,6 +2488,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     })
     gWidgets2::svalue(lefichierY) <- Yname
     #OpenYFile(list(h=lefichierY,action=TRUE))
+    
+    dispose(wspin)
   }
   
   
