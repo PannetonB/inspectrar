@@ -2277,7 +2277,17 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       rows_ori <- data_view$model[rows,(ncol(data_view$GetModel())-1L)]
       if (length(rows)>0){
         #Create a list of all files to modify
-        lesSpectraFiles<-dir(DataDir,"*_I.txt")
+        lepath<-dirname(gWidgets2::svalue(lefichierY))
+        ynom <- gWidgets2::svalue(lefichierY)
+        dname <- strsplit(tools::file_path_sans_ext(basename(ynom)),"_")[[1]]
+        dname=paste(dname[-1],collapse="_")
+        #Exclude Y file
+        dum<-dir(lepath,paste0("*",dname,"*"))
+        dum <- dum[!grepl("Y_",dum)]
+        inds<-grep(dname,dum)
+        lesSpectraFiles <- dum[inds]
+        
+        #lesSpectraFiles<-dir(DataDir,"*_I.txt")
         lesFiles <- c(basename(gWidgets2::svalue(lefichierY)),lesSpectraFiles)
         turbifile <- dir(DataDir,"Turbi_*")
         lesFiles <- c(lesFiles,turbifile)
@@ -4681,7 +4691,7 @@ If min=0 and max=0 -> reset to full scale.",
     #OpenYFile(list(h=lefichierY,action=TRUE))
   }
   
-  # dum=readline("dum")
+#  dum=readline("dum")
   
   #list(win=mymain)  #returned so can be used to keep GUI active.
                     #See runInSpectoR.m
