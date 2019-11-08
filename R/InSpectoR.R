@@ -804,7 +804,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       lesNCPs <<- lapply(var_exp, function(x){
         i2<-as.numeric(which(x<=thr)[1])
         if (x[i2]==0) i2=i2-1  #in case where few samples.
-        return(i2)
+        return(2*i2)
       })
       
       if (N_samples>500){
@@ -3874,7 +3874,7 @@ If min=0 and max=0 -> reset to full scale.",
   #Tab for preprocessing
   #-------------------------
   # NOTE : PreProDone must be set to FALSE when any option is changed.
-  prepro_tab <- gWidgets2::ggroup(cont=nb,label="PrePro")
+  prepro_tab <- gWidgets2::ggroup(cont=nb,label="PrePro", use.scrollwindow = T)
   nb$add_tab_tooltip(index_prepro, "Define data preprocessing steps to selected spectrum types. They will be applied from top to bottom.")
   
   pp_xlim_select_group=gWidgets2::ggroup(cont=prepro_tab,horizontal=FALSE,expand=TRUE)
