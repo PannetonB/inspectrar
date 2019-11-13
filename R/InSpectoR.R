@@ -169,7 +169,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     foreach::registerDoSEQ()
   }
   
-#-------------------------  
+#Local variables-------------------------  
   #******************************************************************************
   #Local variables
   #******************************************************************************
@@ -179,7 +179,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   if (!file.exists(logoimg)) 
     logoimg<-"InSpectraR_Logo_600_130V.png"  #Load logo image
   
-#-------------------------
+#Global variables-------------------------
   #******************************************************************************
   #Global variables
   #******************************************************************************
@@ -231,7 +231,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   plsdaFit <<- NULL         # list of plsda models
   plsFit <<- NULL           # list of pls models
   
-#-------------------------  
+#Generic functions-------------------------  
   #******************************************************************************
   #Generic functions
   #******************************************************************************
@@ -724,7 +724,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     class(x) <- c("conPCA", class(x))
     x
   }
-#-------------------------  
+#Handlers for widgets-------------------------  
   #******************************************************************************
   #Handlers for widgets
   #******************************************************************************
@@ -733,7 +733,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   pick_data_4_PCA <- gWidgets2::gcombobox("")
 
   
-#-------------------------  
+#Widgets on mymain-------------------------  
   #/././././././././././././././././././././././
   #Widgets on mymain
   #/././././././././././././././././././././././
@@ -890,7 +890,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   } 
   
   
-#-------------------------  
+#Widgets on apply_tab-------------------------  
   #/././././././././././././././././././././././
   #Widgets on apply_tab
   #/././././././././././././././././././././././
@@ -1441,7 +1441,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
    }
   
     
-#------------------------- 
+#Widgets on data_tab------------------------- 
   #/././././././././././././././././././././././
   #Widgets on data_tab
   #/././././././././././././././././././././././
@@ -2503,7 +2503,54 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     dispose(wspin)
   }
   
+  #******************************************************************************
+  #A handler for "Normalise by factor levels" DataTransform menu item
+  # ASK FOR BACKUP
+  Normalize_by <- function(h,...)
+    #Handler for Normalize_by
+  {
+    #Select factor for normalising
+    lesfacs <- names(Filter(is.factor,Ys_df))
+    le_fac <- select.list(lesfacs,title="Pick a factor",graphics=T)
+    norm_fac <- Ys_df[le_fac][,1]
+    Nlevels <- nlevels(norm_fac)
+    
+    #Normalise
+    XData <<- lapply(XData, function(xdat){
+      dum=xdat[-1,]
+      
+      #Compute mean spectrum by levels of factor
+      m_4_cls=by(dum,norm_fac,colMeans)
+      
+      #Define wavelength range
+      i1=ginput("Lower limit of wavelength range: ",
+                title="Defining wavelength range",
+                icon="question",
+                text=range(xdat[1,])[1])
+      i1=as.numeric(i1)
+      i1 <- which(xdat[1,]>i1)[1]
+      i2=ginput("Upper limit of wavelength range: ",
+                title="Defining wavelength range",
+                icon="question",
+                text=range(xdat[1,])[2])
+      i2=as.numeric(i2)
+      i2 <- which(xdat[1,]>i2)[1]-1
+      
+      #Average over wavelength range
+      m_4_cls <- lapply(m_4_cls,function(x) mean(x[i1:i2]))
+      for (k in 1:Nlevels){
+        indi <- norm_fac==levels(norm_fac)[k]
+        dum[indi,] <- dum[indi,]/m_4_cls[[k]]  
+      }
+      xdat[-1,] <- dum
+      return(xdat)
+    })
+    XData_p <<- XData
+    PreProDone=FALSE
+    #Need to clear graphs, updata PrePro widgets    
   
+  }
+    
   
   #******************************************************************************
   addPop_2_raw_ggraphics <- function(g,proplist)
@@ -2569,13 +2616,13 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     addRightclickPopupMenu(g,l)                           
   }
   
-#-------------------------
+#Widgets on prepro_tab-------------------------
   #/././././././././././././././././././././././
   #Widgets on prepro_tab
   #/././././././././././././././././././././././
   
 #-------------------------  
-#-------------------------  
+#Widgets on pca_tab-------------------------  
   #/././././././././././././././././././././././
   #Widgets on pca_tab
   #/././././././././././././././././././././././
@@ -3067,7 +3114,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     addRightclickPopupMenu(g,l)                           
   }                
   
-#-------------------------  
+#Widgets on plsda_tab-------------------------  
   #/././././././././././././././././././././././
   #Widgets on plsda_tab
   #/././././././././././././././././././././././
@@ -3345,7 +3392,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     addRightclickPopupMenu(g,l)                           
   }                
   
-#------------------------- 
+#Widgets on pls_tab------------------------- 
   #/././././././././././././././././././././././
   #Widgets on pls_tab
   #/././././././././././././././././././././././
@@ -3669,12 +3716,12 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   }                
   
   
-#-------------------------
+#GUI building-------------------------
   #******************************************************************************
   #GUI building
   #******************************************************************************
   
-  #-------------------------
+  #Base window tab-------------------------
   #Base window with logo and an empty notebook
   #-------------------------
   main_title<-paste("InSpectoR",ISR_env$laversion," - ",ISR_env$ladate)
@@ -3704,11 +3751,17 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   logo <- gWidgets2::gimage(container=main_group)
   nb <- gWidgets2::gnotebook(container=main_group,expand=TRUE,index=TRUE)
   
-  #-------------------------
+  #Data selection tab-------------------------
   #Tab for data selection and viewing
   #-------------------------
   data_tab <- gWidgets2::ggroup(container=nb,label="Data selection",horizontal=FALSE)
   nb$add_tab_tooltip(index_data, "Select data for subsequent processing and modeling. View raw data")
+  
+  file_action = list(merge=gaction("Merge Data sets", icon="convert", handler=Match_Dataset_Multiple),
+                     normby=gaction("Normalise by factor levels", icon="spike", handler=Normalize_by))
+  menubarlist <- list(DataTransform=file_action) 
+  f_menu <- gmenu(menubarlist, cont = mymain) 
+  
   
   all_data_tab <- gWidgets2::gvbox(container=data_tab,expand=TRUE)
   
@@ -3851,7 +3904,7 @@ If min=0 and max=0 -> reset to full scale.",
   gWidgets2::addHandlerChanged(raw_data_graph,interact_w_spectra_plot)
   
   
-  #-------------------------
+  #Apply tab-------------------------
   #Tab for application of stored models
   #-------------------------
   apply_tab <- gWidgets2::ggroup(container=nb,label="Apply models",horizontal=FALSE)
@@ -3871,7 +3924,7 @@ If min=0 and max=0 -> reset to full scale.",
   
   
   
-  #-------------------------
+  #Prepro tab -------------------------
   #Tab for preprocessing
   #-------------------------
   # NOTE : PreProDone must be set to FALSE when any option is changed.
@@ -3910,7 +3963,7 @@ If min=0 and max=0 -> reset to full scale.",
   
   
   
-  #-------------------------
+  #PCA tab-------------------------
   #Tab for PCA
   #-------------------------
   pca_tab <- gWidgets2::ggroup(cont=nb,label="PCA")
@@ -4065,7 +4118,7 @@ If min=0 and max=0 -> reset to full scale.",
   #Handle to find sample associated with mouse click on graph
   gWidgets2::addHandlerChanged(ggacp,interact_w_pca_plot)
   
-  #-------------------------
+  #PLSDA tab-------------------------
   #Tab for PLSDA
   #-------------------------
   plsda_tab <- gWidgets2::ggroup(cont=nb,label="PLSDA")
@@ -4387,7 +4440,7 @@ If min=0 and max=0 -> reset to full scale.",
   })
   
   
-  #-------------------------
+  #PLS tab-------------------------
   #Tab for PLS
   #-------------------------
   pls_tab <- gWidgets2::ggroup(cont=nb,label="PLS")
@@ -4657,7 +4710,7 @@ If min=0 and max=0 -> reset to full scale.",
   
 
   #******************************************************************************
-  #-------------------------
+  #Initialise-------------------------
   #Initialise
   #-------------------------
  
@@ -4692,7 +4745,8 @@ If min=0 and max=0 -> reset to full scale.",
     #OpenYFile(list(h=lefichierY,action=TRUE))
   }
   
-#  dum=readline("dum")
+  # dum='A'
+  # while (toupper(dum) != 'Q') dum=readline("\nq to quit: ")
   
   #list(win=mymain)  #returned so can be used to keep GUI active.
                     #See runInSpectoR.m
