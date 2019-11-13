@@ -1459,7 +1459,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     #Load and display Y data file
     if (h$action){ #TRUE when opening the file. FALSE when applying a subsetting
                    #operation or when defining a new factor.
-      Ys_df<<-read.table(file=gWidgets2::svalue(lefichierY),header=TRUE,sep="\t",dec=".")
+      Ys_df<<-read.table(file=gWidgets2::svalue(lefichierY),header=TRUE,sep="\t",dec=".",
+                         na.strings = "")
       #gWidgets2::add a column with sequence number in the data file to allow tracing back when
       #a subset of data is used in the GUI.
       Ys_df<<-cbind(Ys_df,seq_len(nrow(Ys_df)))
