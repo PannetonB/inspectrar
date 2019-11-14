@@ -315,7 +315,7 @@ This frame contains a table for defining parameters required to apply Savitzky-G
 [TOC](#TOC)   
 
 ## *PCA* tab
-This tab presents the results from principal component analysis (PCA) on all selected data types. When selecting this tab, pre-processing is applied and PCA analysis is performed on each data type using the *prcomp* function from the *stats* package. For each data type, an *Estimated number of significant PCs* is computed. This corresponds to the number of principal components (PCs) required to explain 99.9% of the variance. The frame displaying this number is updated each time the *Spectral data set for PCA* selection changes.  
+This tab presents the results from principal component analysis (PCA) on all selected data types. When selecting this tab, pre-processing is applied and PCA analysis is performed on each data type using the *prcomp* function from the *stats* package. For each data type, an *Estimated number of significant PCs* is computed. This corresponds to twice the number of principal components (PCs) required to explain 99.9% of the variance. The frame displaying this number is updated each time the *Spectral data set for PCA* selection changes.  
 
 By default, a biplot of the scores of the first two PCs is displayed. The comboboxes and buttons can be used to select several plotting options and to export PCA data and models to files. Also, the user can interact directly on the graph to select points, zoom or export the plot to files or the clipboard. After selecting plot options, the user must click on the *Update plot* button to update the plot. 
 

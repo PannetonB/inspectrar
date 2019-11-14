@@ -187,8 +187,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #ISR_env is used to store global variables for internal use by InSpectoR
   calling_enviro <<- parent.env(environment())
   ISR_env <- new.env(parent=emptyenv())
-  ISR_env$laversion<-"0.1.0" #Version of InSpectoR
-  ISR_env$ladate <- "March 2019"    #Date of current version
+  ISR_env$laversion<-"0.1.1" #Version of InSpectoR
+  ISR_env$ladate <- "November 2019"    #Date of current version
   index_data <<- 1          #gnotebook page number for data_tab
   index_applymods <<- 2     #gnotebook page number for apply_tab
   index_prepro <<- 3        #gnotebook page number for prepro_tab
@@ -1576,7 +1576,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
      
     }
      
-    
+    enabled(file_action$normby) <- TRUE
     
     #Clear graphics
     lapply(ggraphs,Clear_graph)
@@ -2514,27 +2514,27 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     le_fac <- select.list(lesfacs,title="Pick a factor",graphics=T)
     norm_fac <- Ys_df[le_fac][,1]
     Nlevels <- nlevels(norm_fac)
-    
+    lesnoms <- get_DataType_Names(XDatalist)
     #Normalise
-    XData <<- lapply(XData, function(xdat){
-      dum=xdat[-1,]
+    dum1 <- lapply(seq_along(XData), function(i){
+      dum=XData[[i]][-1,]
       
       #Compute mean spectrum by levels of factor
       m_4_cls=by(dum,norm_fac,colMeans)
       
       #Define wavelength range
-      i1=ginput("Lower limit of wavelength range: ",
+      i1=ginput(paste0("Lower limit of wavelength range for ", lesnoms[i], " : "),
                 title="Defining wavelength range",
                 icon="question",
-                text=range(xdat[1,])[1])
+                text=range(XData[[i]][1,])[1])
       i1=as.numeric(i1)
-      i1 <- which(xdat[1,]>i1)[1]
-      i2=ginput("Upper limit of wavelength range: ",
+      i1 <- which(XData[[i]][1,]>i1)[1]
+      i2=ginput(paste0("Upper limit of wavelength range for", lesnoms[i], " : "),
                 title="Defining wavelength range",
                 icon="question",
-                text=range(xdat[1,])[2])
+                text=range(XData[[i]][1,])[2])
       i2=as.numeric(i2)
-      i2 <- which(xdat[1,]>i2)[1]-1
+      i2 <- which(XData[[i]][1,]>i2)[1]-1
       
       #Average over wavelength range
       m_4_cls <- lapply(m_4_cls,function(x) mean(x[i1:i2]))
@@ -2542,13 +2542,29 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
         indi <- norm_fac==levels(norm_fac)[k]
         dum[indi,] <- dum[indi,]/m_4_cls[[k]]  
       }
-      xdat[-1,] <- dum
-      return(xdat)
+      XData[[i]][-1,] <<- dum
+      return(i)
     })
     XData_p <<- XData
-    PreProDone=FALSE
-    #Need to clear graphs, updata PrePro widgets    
-  
+    Apply_PreTreatments()
+    #Clear plots of raw data
+    Clear_graph(raw_data_graph)
+    #Zoom all
+    lapply(proplist,"blockHandlers")
+    svalue(proplist[[1]])<-0
+    svalue(proplist[[2]])<-0
+    svalue(proplist[[3]])<-0
+    svalue(proplist[[4]])<-1  #Dummy to make sure plot is updated when setting proplist[[4]] to 0.
+    lapply(proplist,"unblockHandlers")
+    svalue(proplist[[4]])<-0
+    
+    #make sure a sample is selected for updating plot
+    selected_rows<-Y_selection$getSelectedRows()
+    if (length(selected_rows$retval)==0){ 
+      path = gtkTreePathNewFromIndices(1, -1)  #first row
+      gtkTreeSelectionSelectPath(Y_selection, path)
+    }
+    update_rawX_plot(Y_selection)
   }
     
   
@@ -4744,6 +4760,9 @@ If min=0 and max=0 -> reset to full scale.",
     gWidgets2::svalue(lefichierY) <- yfile
     #OpenYFile(list(h=lefichierY,action=TRUE))
   }
+  
+  ## disable normalis
+  enabled(file_action$normby) <- FALSE
   
   # dum='A'
   # while (toupper(dum) != 'Q') dum=readline("\nq to quit: ")
