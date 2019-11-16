@@ -1420,9 +1420,9 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     #Do pretreatments☼
     Apply_PreTreatments(prepro_par = prepro_params)
     
-    blockHandlers(gc_plsda_aggreg)
+    gWidgets2::blockHandlers(gc_plsda_aggreg)
     gWidgets2::svalue(aggregate_options)$'Aggregation operator: ' <- model_descript$aggregation
-    unblockHandlers(gc_plsda_aggreg)
+    gWidgets2::unblockHandlers(gc_plsda_aggreg)
     
     #Apply model
     if (model_descript$aggregation=="concatenate"){
