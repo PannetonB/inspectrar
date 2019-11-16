@@ -567,6 +567,12 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   Apply_PreTreatments <- function(prepro_par=NULL)
   #Apply all pretreatments as defined in the prepro tab.
   #Construct the prepro_param list to store parameters to be saved with models.  
+  #   gWidgets2::delete(gf_truncation,gf_truncation$children[[1]])
+  # gf_truncation<-build_truncation_widget(XDatalist,gf_truncation,le_r)
+  # gWidgets2::delete(gf1,gf1$children[[1]])
+  # gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,le_r)
+  # gWidgets2::delete(gf_savgol,gf_savgol$children[[1]])
+  # gf_savgol <- build_savgol_widget(XDatalist,gf_savgol)
   {
     #Truncation
     if (is.null(prepro_par)){  #retrieve from GUI
@@ -576,7 +582,11 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       prepro_params$trunc_limits <<- trunc_limits
     }else   #extract from prepro_params
     {
-      trunc_limits<-prepro_par$trunc_limits
+      trunc_limits<-prepro_params$trunc_limits
+      #load into gui
+      le_r <- lapply(seq_len(nrow(trunc_limits)), function(i) trunc_limits[i,])
+      gWidgets2::delete(gf_truncation,gf_truncation$children[[1]])
+      gf_truncation<-build_truncation_widget(XDatalist,gf_truncation,le_r)
     }
     ii<-as.list(1:nrow(trunc_limits))
     lapply(ii,function(x){
@@ -604,6 +614,20 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       type <- prepro_params$byspectra_scaling_index
       letest=any(type==2)
       cntr_n_w <- prepro_par$cntr_n_w
+      gWidgets2::delete(gf1,gf1$children[[1]])
+      gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,le_r)
+      dum <- as.list(seq_along(type))
+      sapply(dum, function(ii){
+        leGradio <- gf1$children[[1]][-1,2][[ii]]
+        gWidgets2::svalue(leGradio,index=TRUE) <- as.numeric(type[ii])
+      })
+      sapply(dum, function(ii){
+        lacase <- gf1$children[[1]][ii+1,3]
+        gWidgets2::svalue(lacase) <- cntr_n_w[ii,1]
+        lacase <- gf1$children[[1]][ii+1,4]
+        gWidgets2::svalue(lacase) <- cntr_n_w[ii,2]
+      })
+      
     }
     if (letest){
       wl<-lapply(XData_p, function(y) y[1,]) # a list of wl vector, one per spectrum type
@@ -671,11 +695,25 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       prepro_params$w <<- w
     }else   #extract from prepro_params
     {
+      N=length(XData)
+      dum <- as.list(seq_len(N))
       dosavgol<-prepro_params$do_savgol
       letest=any(dosavgol==TRUE)
       m <- prepro_par$m 
       p <- prepro_params$p
       w <- prepro_par$w
+      gWidgets2::delete(gf_savgol,gf_savgol$children[[1]])
+      gf_savgol <- build_savgol_widget(XDatalist,gf_savgol)
+      sapply(dum, function(ii){
+        lecheck <- gf_savgol$children[[1]][-1,2][[ii]]
+        gWidgets2::svalue(lecheck) <- dosavgol[ii]
+        lem <- gf_savgol$children[[1]][-1,4][[ii]]
+        gWidgets2::svalue(lem) <- m[ii]
+        lep <- gf_savgol$children[[1]][-1,5][[ii]]
+        gWidgets2::svalue(lep) <- p[ii]
+        lew <- gf_savgol$children[[1]][-1,3][[ii]]
+        gWidgets2::svalue(lew) <- w[ii]
+      })
     }
     if (letest){
       #retrieve paramaters
@@ -763,7 +801,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
         gWidgets2::svalue(proplist[[4]])<-1  #Dummy to make sure plot is updated when setting proplist[[4]] to 0.
         lapply(proplist,gWidgets2::unblockHandlers)
         gWidgets2::svalue(proplist[[4]])<-0
-        update_rawX_plot(Y_selection)
+        #update_rawX_plot(Y_selection)
         
       }
     }
@@ -1526,6 +1564,9 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       dum <- dum[!grepl("Y_",dum)]
       #dum<-dir(lepath,paste0("*",dname,"_I.txt"))
       inds<-grep(dname,dum)
+      #For user to select X files to load
+      dum = select.list(dum[inds],multiple=T,graphics = T)
+      inds <- seq_along(dum)
       #Make sure 1rst column of Ys_df matches 1rst column of XData files.
       #If not, drop the corresponding XData file from the list of lesX and display a warning.
       nn<-length(inds)
@@ -2637,6 +2678,126 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #Widgets on prepro_tab
   #/././././././././././././././././././././././
   
+  #******************************************************************************
+  save_prepro <- function(h,...)
+    #Callback for saving prepro options to a RData file
+  {
+    if (!PreProDone) {  #needed to define prepro_params.
+      Apply_PreTreatments()
+      PreProDone <<- TRUE
+    }
+    ff <- gWidgets2::gfile("Define a file name",type="save")
+    exten=tools::file_ext(ff)
+    if (!(exten=="RData")) ff=paste0(tools::file_path_sans_ext(ff),".RData")
+    #Get a short description from user
+    description<-""
+    dlg=gWidgets2::gbasicdialog(title="User input", handler=function(h,...){
+      description<<-gWidgets2::svalue(txt)
+    })
+    gv=gWidgets2::gvbox(container = dlg)
+    lab=gWidgets2::glabel("Enter a short description for the model.",cont=gv)
+    txt=gWidgets2::gtext(text="",width = 300,container = gv)
+    gWidgets2::visible(dlg)
+    
+    dums <- MakeSpinner()
+    
+    model_descript=list(type="prepro",
+                        description=description,
+                        datatype=get_DataType_Names(XDatalist))
+    
+    save(model_descript, prepro_params, file=ff) 
+    
+    dispose(dums)
+  }
+  #******************************************************************************  
+  load_prepro<-function(h,...){
+    
+    ff<-""
+    dlg = gWidgets2::gbasicdialog(title="Select PCA model", width=500,handler=function(h,...){
+      ff<<-lefile
+      rm(lefile,envir = .GlobalEnv)
+    })
+    gWidgets2::size(dlg)<-c(500,500)
+    gv=gWidgets2::gvbox(container = dlg,fill=TRUE)
+    
+    
+    btn<-gWidgets2::gbutton("Pick a PrePro options file",cont=gv, handler=function(h,...){
+      dum=getToolkitWidget(dlg)
+      dum$window$hide()
+      lefile<<-gWidgets2::gfile("Pick a PrePro options file",
+                                filter=list("RData files" = list(patterns=c("*.RData"))))
+      gWidgets2::insert(texte,lefile,do.newline = TRUE)
+      gWidgets2::insert(texte,"\n")
+      load(lefile, envir = .GlobalEnv)
+      Encoding(model_descript$description) <- "UTF-8"
+      gWidgets2::insert(texte,model_descript$description)
+      gWidgets2::insert(texte,"\n")
+      gWidgets2::insert(texte,model_descript)
+      gWidgets2::insert(texte,"\n")
+      gWidgets2::insert(texte,"Truncation limits: ")
+      gWidgets2::insert(texte,toString(prepro_params$trunc_limits[,1]))
+      gWidgets2::insert(texte,toString(prepro_params$trunc_limits[,2]))
+      gWidgets2::insert(texte,"By spectra scaling selection (1-none, ...): ")
+      gWidgets2::insert(texte,toString(prepro_params$byspectra_scaling_index))
+      gWidgets2::insert(texte,"Center and BW for by value scaling: ")
+      gWidgets2::insert(texte,toString(prepro_params$cntr_n_w[,1]))
+      gWidgets2::insert(texte,toString(prepro_params$cntr_n_w[,2]))
+      gWidgets2::insert(texte,"Flag for SavGol: ")
+      gWidgets2::insert(texte,toString(prepro_params$do_savgol))
+      gWidgets2::insert(texte,"Derivative order for SavGol: ")
+      gWidgets2::insert(texte,toString(prepro_params$m))
+      gWidgets2::insert(texte,"Polynomial order for SavGol: ")
+      gWidgets2::insert(texte,toString(prepro_params$p))
+      gWidgets2::insert(texte,"Window size for SavGol: ")
+      gWidgets2::insert(texte,toString(prepro_params$w))
+      dum$window$show()
+    })
+    
+    
+    
+    texte=gWidgets2::gtext("",container=gv,expand=TRUE)
+    dum <- gWidgets2::visible(dlg)
+    if (!dum) return()
+    
+    
+    load(ff,envir = .GlobalEnv)
+    Encoding(model_descript$description) <- "UTF-8"
+    if (!(model_descript$type=="prepro")){
+      gWidgets2::gmessage("Not a prepro options file!",title="Warning!",
+                          icon="warning")
+      return()
+    }
+    
+    
+    #Check if data type needed by the model are available. If yes, build XData
+    # and XData_p as in Make_XDatalist
+    
+    #Create a list of data types available in the current data set.
+    #Then get data types.
+    dum=as.list(levels(lesX[,1]))
+    xType=get_DataType_Names(dum)  
+    #Find indices of data types required by the model
+    indix=pmatch(model_descript$datatype,xType)
+    if (any(is.na(indix))){  #no match, cannot apply model
+      gWidgets2::gmessage(title="ABORTING!",
+                          msg="Required data type not available in current data set.\nABORTING!")
+      return()
+    }
+    
+    #Select required data types
+    doplot_lesX <<- FALSE
+    gWidgets2::svalue(lesX,index=TRUE)<-indix
+    doplot_lesX <<- TRUE
+    
+    #load Pretreatments options.
+    Apply_PreTreatments(prepro_par = prepro_params)
+    PreProDone <<- TRUE
+    do_scales_raw_plot(xmini)
+    
+    
+  }
+  #*************************************************************
+    
 #-------------------------  
 #Widgets on pca_tab-------------------------  
   #/././././././././././././././././././././././
@@ -2958,7 +3119,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   {
     ff <- gWidgets2::gfile("Define a file name",type="save")
     exten=tools::file_ext(ff)
-    if (!(exten=="RData")) ff=paste(tools::file_path_sans_ext(ff),".RData")
+    if (!(exten=="RData")) ff=paste0(tools::file_path_sans_ext(ff),".RData")
     #Get a short description from user
     description<-""
     dlg=gWidgets2::gbasicdialog(title="User input", handler=function(h,...){
@@ -3316,7 +3477,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   {
     ff <- gWidgets2::gfile("Define a file name",type="save")
     exten=tools::file_ext(ff)
-    if (!(exten=="RData")) ff=paste(tools::file_path_sans_ext(ff),".RData")
+    if (!(exten=="RData")) ff=paste0(tools::file_path_sans_ext(ff),".RData")
     #Get a short description from user
     description<-""
     dlg=gbasicdialog(title="User input", handler=function(h,...){
@@ -3528,7 +3689,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   {
     ff <- gWidgets2::gfile("Define a file name",type="save")
     exten=tools::file_ext(ff)
-    if (!(exten=="RData")) ff=paste(tools::file_path_sans_ext(ff),".RData")
+    if (!(exten=="RData")) ff=paste0(tools::file_path_sans_ext(ff),".RData")
     #Get a short description from user
     description<-""
     dlg=gWidgets2::gbasicdialog(title="User input", handler=function(h,...){
@@ -3863,7 +4024,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   xmaxi <- gWidgets2::gspinbutton(0,2000,10,value=0, container=gf2)
   gWidgets2::addHandlerChanged(xmaxi,do_scales_raw_plot)
   gWidgets2::glabel("Y-axis min",container=gf2,anchor=c(-1,0))
-  ymini <- gWidgets2::gspinbutton(0,100000,1000,value=0, digits=1, container=gf2)
+  ymini <- gWidgets2::gspinbutton(-10000,100000,1000,value=0, digits=1, container=gf2)
   gWidgets2::addHandlerChanged(ymini,do_scales_raw_plot)
   gWidgets2::glabel("Y-axis max",container=gf2,anchor=c(-1,0))
   ymaxi <- gWidgets2::gspinbutton(0.0,100000.0,1000.0,value=0, digits=1, container=gf2)
@@ -3974,6 +4135,14 @@ If min=0 and max=0 -> reset to full scale.",
                                       Apply_PreTreatments()
                                       PreProDone<<-TRUE
                                     })
+  
+  btn_save_pretreatment <- gWidgets2::gbutton("Save preprocessing options",
+                                              container = pp_xlim_select_group,
+                                              handler = save_prepro)
+  
+  btn_load_pretreatment <- gWidgets2::gbutton("Load preprocessing options",
+                                              container = pp_xlim_select_group,
+                                              handler = load_prepro)
   
   gWidgets2::addSpring(pp_xlim_select_group)
   
