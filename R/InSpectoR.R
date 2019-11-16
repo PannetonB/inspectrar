@@ -1417,10 +1417,12 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     gWidgets2::svalue(lesX,index=TRUE)<-indix
     doplot_lesX <<- TRUE
     
-    
     #Do pretreatments☼
     Apply_PreTreatments(prepro_par = prepro_params)
     
+    blockHandlers(gc_plsda_aggreg)
+    gWidgets2::svalue(aggregate_options)$'Aggregation operator: ' <- model_descript$aggregation
+    unblockHandlers(gc_plsda_aggreg)
     
     #Apply model
     if (model_descript$aggregation=="concatenate"){
@@ -1441,18 +1443,24 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     }else
     {
       
+      ind_lesX_list<-as.list(seq_len(length(model_descript$datatype)))
+      plsda_set <<- lapply(ind_lesX_list, function(ii){
+        y<-data.frame(Cl1=Ys_df_sub[,1] ,XData_p[[ii]][-1,])
+        colnames(y)[-1]<-as.character(XData_p[[ii]][1,])
+        return(y)
+      })
     }
-    
+      
       plsda_probs <- Predict_plsda(plsdaFit,mydata=plsda_set,probs=TRUE)
       plsda_cl <- Predict_plsda(plsdaFit,mydata=plsda_set,probs=FALSE)
-  
+      
   #   #Show results
   #   #Build a modal GUI
-  #   
+  #  
      dat_tbl=as.data.frame(cbind(plsda_cl,plsda_probs))
      ncol_Ys=ncol(Ys_df)
      dat_tbl=cbind(Ys_df_sub[,-c(ncol_Ys-1,ncol_Ys)],dat_tbl,NoSeq=seq_len(nrow(dat_tbl)))
-     
+    
 
     tmp_w <- gWidgets2::gwindow(visible=FALSE,
                   title=paste("PLS on ",
