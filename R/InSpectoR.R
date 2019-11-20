@@ -1626,6 +1626,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     }
      
     enabled(file_action$normby) <- TRUE
+    enabled(file_action$splitat) <- TRUE
     
     #Clear graphics
     lapply(ggraphs,Clear_graph)
@@ -2554,7 +2555,6 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   
   #******************************************************************************
   #A handler for "Normalise by factor levels" DataTransform menu item
-  # ASK FOR BACKUP
   Normalize_by <- function(h,...)
     #Handler for Normalize_by
   {
@@ -2615,7 +2615,93 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     }
     update_rawX_plot(Y_selection)
   }
+  #******************************************************************************
+  # A handler for "Split spectra" DataTransform menu item
+  # User selects a spectral data type and a wavelength (wavenumber) where to split
+  # in two parts.
+  # The split is volatile and dissapears when the user select a new Y file or quit
+  # the GUI. On leaving the GUI, the splitted spectra are part of the XDatalist, 
+  # All_XData, XData and XData_p left in the R global environment.
+  Split_at_wv <- function(h,...)
+  {
+    #Select spectral data type to split
+    le_type <- select.list(as.character(lesX[,1]),
+                           title="Pick a data type",
+                           multiple=F,
+                           graphics=T)
+    inds <- which(le_type==as.character(lesX[,1]))
+    lesdats <<- All_XData[[inds]]
+    wls <- lesdats[1,-1]
+    wl_range <- range(wls)
     
+    splitwl <- numeric()
+    dlg <- gWidgets2::gbasicdialog("Select where to cut in 2 pieces", parent=mymain,
+                        handler = function(h,...) {splitwl <<- svalue(sl)})
+      g <- gWidgets2::ggroup(container = dlg, horizontal = TRUE)
+      gWidgets2::glabel("Pick wavelength",cont = g,expang=F)
+      sl <- gWidgets2::gslider(from=wl_range[1],
+                    to=wl_range[2], by=1, value=mean(wl_range), 
+                    cont=g, expand=TRUE, fill= T)
+      gWidgets2::size(dlg) <- c(400,80)
+      out <- gWidgets2::visible(dlg)
+    i2 <- which(wls >= splitwl)[1]
+    i3 <- length(wls)+1
+    
+    #update lesX
+    splitchr <- strsplit(as.character(lesX[inds,1]),"_")
+    name_lo <- paste0(splitchr[[1]][1],"LO_",paste(splitchr[[1]][-1],collapse = "_"))
+    name_hi <- paste0(splitchr[[1]][1],"HI_",paste(splitchr[[1]][-1],collapse = "_"))
+    
+    lesnoms <- as.character(lesX[,1])
+    N_old <- nrow(lesX)
+    switch (as.character(N_old),
+             "1" = lesnoms <- c(name_lo, name_hi),
+             "2" = {  if (inds==1){
+                       lesnoms <- c(name_lo, name_hi, lesnoms[2])
+                      }else lesnoms <- c(lesnoms[1], name_lo, name_hi)
+                  },
+             if (inds==1){
+               lesnoms <- c(name_lo, name_hi, lesnoms[-1])
+             }else if (inds==N_old){
+               lesnoms <- c(lesnoms[-N_old], name_lo, name_hi)
+             }else
+             {
+               lesnoms <- c(lesnoms[1:(inds-1)], name_lo, name_hi, lesnoms[(inds+1):length(lesnoms)])
+             }
+    )
+   
+    df<-as.data.frame(lesnoms)
+    colnames(df)<-"X Data Files"
+    assign("df",df,envir = .GlobalEnv)
+    #Loading spectra files list in lesX and select first one
+    gWidgets2::blockHandlers(lesX)
+    lesX[]<-df
+    gWidgets2::unblockHandlers(lesX)
+    
+    #Updata All_XData
+    datalo <- lesdats[,(1:i2)]
+    datahi <- lesdats[,c(1,(i2+1):i3)]
+    data_add <- list(datalo,datahi)
+    switch (as.character(N_old),
+            "1" = All_XData <<- data_add,
+            "2" = { if (inds==1){
+                      All_XData <<- c(data_add, All_XData[2])
+                    }else All_XData <<- c(All_XData[1], data_add)
+            },
+            if (inds==1){
+              All_XData <<- c(data_add, All_XData[-1])
+            }else if (inds==N_old){
+              All_XData <<- c(All_XData[-N_old], data_add)
+            }else
+            {
+              All_XData <<- c(All_XData[1:(inds-1)], data_add, All_XData[(inds+1):length(lesnoms)])
+            }
+    )
+    
+    #Make selection in lesX to launch Make_XDatalist and this should do it!
+    gWidgets2::svalue(lesX, index=TRUE) <- c(inds, inds+1)
+    
+  }
   
   #******************************************************************************
   addPop_2_raw_ggraphics <- function(g,proplist)
@@ -2698,7 +2784,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     exten=tools::file_ext(ff)
     if (!(exten=="RData")) ff=paste0(tools::file_path_sans_ext(ff),".RData")
     #Get a short description from user
-    description<-""
+    description <- ""
     dlg=gWidgets2::gbasicdialog(title="User input", handler=function(h,...){
       description<<-gWidgets2::svalue(txt)
     })
@@ -3943,7 +4029,9 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   nb$add_tab_tooltip(index_data, "Select data for subsequent processing and modeling. View raw data")
   
   file_action = list(merge=gaction("Merge Data sets", icon="convert", handler=Match_Dataset_Multiple),
-                     normby=gaction("Normalise by factor levels", icon="spike", handler=Normalize_by))
+                     normby=gaction("Normalise by factor levels", icon="spike", handler=Normalize_by),
+                     splitat=gaction("Split spectra", icon="split", handler=Split_at_wv))
+
   menubarlist <- list(DataTransform=file_action) 
   f_menu <- gmenu(menubarlist, cont = mymain) 
   
@@ -4940,6 +5028,7 @@ If min=0 and max=0 -> reset to full scale.",
   
   ## disable normalis
   enabled(file_action$normby) <- FALSE
+  enabled(file_action$splitat) <- FALSE
   
   # dum='A'
   # while (toupper(dum) != 'Q') dum=readline("\nq to quit: ")
