@@ -1,7 +1,7 @@
 Package: inspectrar
 Type: Package
 Title: GWidgets2/RGtk2 GUI for viewing and modeling spectroscopy data
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: person("Bernard", "Panneton", email = "pannetonb@gmail.com",
     role = c("aut", "cre"))
 Description: The main function in inspectrar is InSpectoR. It opens a data set comprising spectral data from

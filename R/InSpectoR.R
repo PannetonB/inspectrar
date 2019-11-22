@@ -4030,7 +4030,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   
   file_action = list(merge=gaction("Merge Data sets", icon="convert", handler=Match_Dataset_Multiple),
                      normby=gaction("Normalise by factor levels", icon="spike", handler=Normalize_by),
-                     splitat=gaction("Split spectra", icon="split", handler=Split_at_wv))
+                     splitat=gaction("Split spectra", icon="cut", handler=Split_at_wv))
 
   menubarlist <- list(DataTransform=file_action) 
   f_menu <- gmenu(menubarlist, cont = mymain) 
