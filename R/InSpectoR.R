@@ -2616,6 +2616,41 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     update_rawX_plot(Y_selection)
   }
   #******************************************************************************
+  # A handler for checkEchID DataTransform menu item. 
+  # See help for Trouve_ErrEchID for explanation
+  # Results will be displayed on a separate window.
+  Find_ErrEchID <- function(h,...){
+    dum <- Trouve_ErrEchID(F)
+    #Display results
+    if (is.character(dum)){
+      gWidgets2::gmessage(dum,title="Files O.K.", icon="info", parent = mymain)
+    }else
+    {
+      tmp_w=gWidgets2::gwindow(visible=FALSE,
+                               title=paste0("Data files compatibility check - ",
+                                            "Y file: ", basename(dum$yfile),
+                                            ", X file: ", basename(dum$xfile)),
+                               parent = mymain)
+      gg=gWidgets2::gvbox(container = tmp_w)
+      btn_save_check=gWidgets2::gbutton("Save to file",container = gg,
+                                          handler=function(h,...){
+                                            outfile=choose.files(default=file.path(basename(basename(dum$yfile)),"*.txt"),
+                                                                 caption="Define file name",
+                                                                 multi=FALSE, 
+                                                                 filters=Filters[c("txt")])
+                                            write.table(dum$df,
+                                                        file=outfile,
+                                                        sep="\t",
+                                                        dec=".",
+                                                        row.names = FALSE,
+                                                        quote=FALSE)
+                                          })
+      gt=gWidgets2::gtable(dum$df,container = gg)
+      gt$widget$setGridLines('both')
+      gWidgets2::visible(tmp_w)<-TRUE
+    }
+  }
+  #******************************************************************************
   # A handler for "Split spectra" DataTransform menu item
   # User selects a spectral data type and a wavelength (wavenumber) where to split
   # in two parts.
@@ -4028,7 +4063,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   data_tab <- gWidgets2::ggroup(container=nb,label="Data selection",horizontal=FALSE)
   nb$add_tab_tooltip(index_data, "Select data for subsequent processing and modeling. View raw data")
   
-  file_action = list(merge=gaction("Merge Data sets", icon="convert", handler=Match_Dataset_Multiple),
+  file_action = list(checkEchID=gaction("Check X file compabtility", handler = Find_ErrEchID),
+                     merge=gaction("Merge Data sets", icon="convert", handler=Match_Dataset_Multiple),
                      normby=gaction("Normalise by factor levels", icon="spike", handler=Normalize_by),
                      splitat=gaction("Split spectra", icon="cut", handler=Split_at_wv))
 
