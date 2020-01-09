@@ -35,10 +35,10 @@ get_graph_limits <- function(x)
 # B. Panneton, June 2017
 #***********************************************************************************************************   
 {
-  xmin=min(unlist(lapply(x,function(x) min(x[1,]))))
-  xmax=max(unlist(lapply(x,function(x) max(x[1,]))))
+  xmin=min(unlist(lapply(x,function(x) min(x[1,],na.rm=T))))
+  xmax=max(unlist(lapply(x,function(x) max(x[1,],na.rm=T))))
   xmax=xmax+(xmax-xmin)*0.15  #adds 15% to provide space for legends
-  ymin=min(unlist(lapply(x,function(x) min(x[-1,]))))
-  ymax=max(unlist(lapply(x,function(x) max(x[-1,]))))
+  ymin=min(unlist(lapply(x,function(x) min(x[-1,],na.rm=T))))
+  ymax=max(unlist(lapply(x,function(x) max(x[-1,],na.rm=T))))
   return(list(xlimits=c(xmin,xmax),ylimits=c(ymin,ymax)))
 }  
