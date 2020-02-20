@@ -2441,6 +2441,38 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   
   
   #******************************************************************************
+  #A handler for btn_merge_Ys button
+  merge_Xs <- function(h,...)
+    #Handler for btn_merge_Ys
+  {
+    N_types <- length(All_XData)
+    dum <- XData[[1]]
+    for (k in 2:length(XData)){
+      dum <- cbind(dum,XData[[k]])
+    }
+
+    All_XData <- c(All_XData,dum)
+    
+    XData <- c(XData,dum)
+    XData_p <- XData
+    
+    
+    newname <- gWidgets2::ginput("Enter name of merged data","User input", icon="question")
+    XDatalist <- c(XDatalist,newname)
+    
+    
+    dum=lesX[]
+    df <- data.frame(c(levels(lesX[,1]),newname))
+    colnames(df)<-"X Data Files"
+    assign("df",df,envir = .GlobalEnv)
+    #Loading spectra files list in lesX and select first one
+    gWidgets2::blockHandlers(lesX)
+    lesX[]<-df
+    gWidgets2::unblockHandlers(lesX)
+    cat("YEP!")
+    gWidgets2::svalue(lesX,index=TRUE) <- 1
+  }
+  #******************************************************************************
   #A handler for "btn_aggregate_data" button
   # ASK FOR BACKUP
   Aggregate_Spectra <- function(h,...)
@@ -3178,7 +3210,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     if (nchar(tools::file_ext(ff))==0) ff=paste(ff,".txt",sep="")
     if (length(ff)>0){
       which_ones <- gWidgets2::ginput("Save scores for (A)ll selected spectra or (C)urrent one?",
-                         text="A", icon="question")
+                         text="A", icon="question", parent=mymain)
       if (toupper(which_ones)=="C"){
         leX <- gWidgets2::svalue(pick_data_4_PCA,index=TRUE)
         resACP<-lesACPs[[leX]]
@@ -4145,6 +4177,11 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   gWidgets2::tooltip(btn_merge_Ys) <- paste("Will merge data from 2 Y files according to user choices.",sep="")
   gWidgets2::enabled(btn_merge_Ys) <- FALSE
   
+  btn_merge_Xs <- gWidgets2::gbutton("Merge X data files",container=btn_xdata_select_group,
+                                     handler=merge_Xs)
+  gWidgets2::tooltip(btn_merge_Xs) <- paste("Will merge data selected X data types under user selected name. Not permanent.",sep="")
+  gWidgets2::enabled(btn_merge_Xs) <- FALSE
+  
   prop_xdata_select_group <- gWidgets2::ggroup(container=xdata_select_group,horizontal=FALSE)
   gWidgets2::addSpring(prop_xdata_select_group)
   gf2 <- gWidgets2::gframe("Properties",container=prop_xdata_select_group,horizontal=FALSE)
@@ -5035,7 +5072,7 @@ If min=0 and max=0 -> reset to full scale.",
   gWidgets2::svalue(logo) <- logoimg 
   gWidgets2::visible(mymain)<-TRUE
   btn_needing_Ydata<-list(btn_subset_data,btn_newfactor_data, btn_find_duplicates,
-                          btn_merge_Ys,
+                          btn_merge_Ys, btn_merge_Xs,
                           btn_aggregate_data)
   lapply(btn_needing_Ydata,function(x) enabled(x)<-FALSE)
   have_data<-list(nb[index_applymods],nb[index_prepro],nb[index_acp],nb[index_plsda],nb[index_pls])
