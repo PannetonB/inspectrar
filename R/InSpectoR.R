@@ -1627,6 +1627,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
      
     enabled(file_action$normby) <- TRUE
     enabled(file_action$splitat) <- TRUE
+    enabled(file_action$mergeX) <- TRUE
     
     #Clear graphics
     lapply(ggraphs,Clear_graph)
@@ -2446,19 +2447,31 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     #Handler for btn_merge_Ys
   {
     N_types <- length(All_XData)
-    dum <- XData[[1]]
-    for (k in 2:length(XData)){
-      dum <- cbind(dum,XData[[k]])
+    N_selected <- length(XData_p)
+    if (N_selected < 2){
+      gmessage("Need to select at least 2 data types!","WARNING",icon="warning", parent=mymain)
+      return()
     }
-
-    All_XData <- c(All_XData,dum)
+    gmessage(paste0("Preprocessing on joint spectra files not recommended. Perform preprocessing before merging.",
+                    "\nWavelengths ignored, replaced by sequential number.",
+                    "\nReturn to original data set by reloading Y file."),
+             "WARNING!", icon = "warning", parent=mymain)
+    dum <- XData_p[[1]]
+    for (k in 2:length(XData_p)){
+      dum <- cbind(dum,XData_p[[k]])
+    }
     
-    XData <- c(XData,dum)
-    XData_p <- XData
+    dum[1,-1] <- 1:(ncol(dum)-1)
+    
+    All_XData[[N_types+1]] <<- dum
     
     
-    newname <- gWidgets2::ginput("Enter name of merged data","User input", icon="question")
-    XDatalist <- c(XDatalist,newname)
+   
+    newname <- gWidgets2::ginput("Enter name of merged data (no '_' or space in name)","User input",
+                                 icon="question", parent=mymain)
+    dum <- XDatalist[[1]]
+    lesplit <- lapply(strsplit(dum, ''), function(x) which(x == '_'))[[1]][1]
+    newname <- paste0(newname,substr(dum,lesplit,1000L))
     
     
     dum=lesX[]
@@ -2469,8 +2482,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     gWidgets2::blockHandlers(lesX)
     lesX[]<-df
     gWidgets2::unblockHandlers(lesX)
-    cat("YEP!")
-    gWidgets2::svalue(lesX,index=TRUE) <- 1
+    gWidgets2::svalue(lesX,index=TRUE) <- N_types+1
   }
   #******************************************************************************
   #A handler for "btn_aggregate_data" button
@@ -4096,9 +4108,10 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   nb$add_tab_tooltip(index_data, "Select data for subsequent processing and modeling. View raw data")
   
   file_action = list(checkEchID=gaction("Check X file compabtility", handler = Find_ErrEchID),
-                     merge=gaction("Merge Data sets", icon="convert", handler=Match_Dataset_Multiple),
+                     merge=gaction("Merge Data sets", icon="convert", handler= Match_Dataset_Multiple),
                      normby=gaction("Normalise by factor levels", icon="spike", handler=Normalize_by),
-                     splitat=gaction("Split spectra", icon="cut", handler=Split_at_wv))
+                     splitat=gaction("Split spectra", icon="cut", handler=Split_at_wv),
+                     mergeX=gaction("Merge selected X data types", icon="gtk-dnd-multiple", handler = merge_Xs))
 
   menubarlist <- list(DataTransform=file_action) 
   f_menu <- gmenu(menubarlist, cont = mymain) 
@@ -4177,10 +4190,6 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   gWidgets2::tooltip(btn_merge_Ys) <- paste("Will merge data from 2 Y files according to user choices.",sep="")
   gWidgets2::enabled(btn_merge_Ys) <- FALSE
   
-  btn_merge_Xs <- gWidgets2::gbutton("Merge X data files",container=btn_xdata_select_group,
-                                     handler=merge_Xs)
-  gWidgets2::tooltip(btn_merge_Xs) <- paste("Will merge data selected X data types under user selected name. Not permanent.",sep="")
-  gWidgets2::enabled(btn_merge_Xs) <- FALSE
   
   prop_xdata_select_group <- gWidgets2::ggroup(container=xdata_select_group,horizontal=FALSE)
   gWidgets2::addSpring(prop_xdata_select_group)
@@ -5072,8 +5081,8 @@ If min=0 and max=0 -> reset to full scale.",
   gWidgets2::svalue(logo) <- logoimg 
   gWidgets2::visible(mymain)<-TRUE
   btn_needing_Ydata<-list(btn_subset_data,btn_newfactor_data, btn_find_duplicates,
-                          btn_merge_Ys, btn_merge_Xs,
-                          btn_aggregate_data)
+                          btn_merge_Ys, btn_aggregate_data)
+  
   lapply(btn_needing_Ydata,function(x) enabled(x)<-FALSE)
   have_data<-list(nb[index_applymods],nb[index_prepro],nb[index_acp],nb[index_plsda],nb[index_pls])
   lapply(have_data, function(x) x$widget$hide())
@@ -5102,6 +5111,7 @@ If min=0 and max=0 -> reset to full scale.",
   ## disable normalis
   enabled(file_action$normby) <- FALSE
   enabled(file_action$splitat) <- FALSE
+  enabled(file_action$mergeX) <- FALSE
   
   # dum='A'
   # while (toupper(dum) != 'Q') dum=readline("\nq to quit: ")
