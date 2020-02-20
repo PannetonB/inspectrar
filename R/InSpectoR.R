@@ -2449,10 +2449,10 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     N_types <- length(All_XData)
     N_selected <- length(XData_p)
     if (N_selected < 2){
-      gmessage("Need to select at least 2 data types!","WARNING",icon="warning", parent=mymain)
+      gWidgets2::gmessage("Need to select at least 2 data types!","WARNING",icon="warning", parent=mymain)
       return()
     }
-    gmessage(paste0("Preprocessing on joint spectra files not recommended. Perform preprocessing before merging.",
+    gWidgets2::gmessage(paste0("Preprocessing on joint spectra files not recommended. Perform preprocessing before merging.",
                     "\nWavelengths ignored, replaced by sequential number.",
                     "\nReturn to original data set by reloading Y file."),
              "WARNING!", icon = "warning", parent=mymain)
@@ -4107,14 +4107,14 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   data_tab <- gWidgets2::ggroup(container=nb,label="Data selection",horizontal=FALSE)
   nb$add_tab_tooltip(index_data, "Select data for subsequent processing and modeling. View raw data")
   
-  file_action = list(checkEchID=gaction("Check X file compabtility", handler = Find_ErrEchID),
-                     merge=gaction("Merge Data sets", icon="convert", handler= Match_Dataset_Multiple),
-                     normby=gaction("Normalise by factor levels", icon="spike", handler=Normalize_by),
-                     splitat=gaction("Split spectra", icon="cut", handler=Split_at_wv),
-                     mergeX=gaction("Merge selected X data types", icon="gtk-dnd-multiple", handler = merge_Xs))
+  file_action = list(checkEchID=gWidgets2::gaction("Check X file compabtility", handler = Find_ErrEchID),
+                     merge=gWidgets2::gaction("Merge Data sets", icon="convert", handler= Match_Dataset_Multiple),
+                     normby=gWidgets2::gaction("Normalise by factor levels", icon="spike", handler=Normalize_by),
+                     splitat=gWidgets2::gaction("Split spectra", icon="cut", handler=Split_at_wv),
+                     mergeX=gWidgets2::gaction("Merge selected X data types", icon="gtk-dnd-multiple", handler = merge_Xs))
 
   menubarlist <- list(DataTransform=file_action) 
-  f_menu <- gmenu(menubarlist, cont = mymain) 
+  f_menu <- gWidgets2::gmenu(menubarlist, cont = mymain) 
   
   
   all_data_tab <- gWidgets2::gvbox(container=data_tab,expand=TRUE)
