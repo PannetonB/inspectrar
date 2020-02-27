@@ -2745,7 +2745,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
                lesnoms <- c(lesnoms[-N_old], name_lo, name_hi)
              }else
              {
-               lesnoms <- c(lesnoms[1:(inds-1)], name_lo, name_hi, lesnoms[(inds+1):length(lesnoms)])
+               lesnoms <- c(lesnoms[1:(inds-1)], name_lo, name_hi, lesnoms[(inds+1):N_old])
              }
     )
    
@@ -2773,9 +2773,10 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
               All_XData <<- c(All_XData[-N_old], data_add)
             }else
             {
-              All_XData <<- c(All_XData[1:(inds-1)], data_add, All_XData[(inds+1):length(lesnoms)])
+              All_XData <<- c(All_XData[1:(inds-1)], data_add, All_XData[(inds+1):N_old])
             }
     )
+    
     
     #Make selection in lesX to launch Make_XDatalist and this should do it!
     gWidgets2::svalue(lesX, index=TRUE) <- c(inds, inds+1)
