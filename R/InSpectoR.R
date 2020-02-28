@@ -1733,6 +1733,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       if (to_file) utils::write.table(Ys_df[,1:(cols-2)],file=svalue(lefichierY),sep="\t",row.names=FALSE)
       
       Ys_df_sub<<-Ys_df[subset_ind,]
+      Ys_df_sub<<-droplevels(Ys_df_sub)
+      Ys_df_sub[,ncol(Ys_df_sub)]<<-seq_len(nrow(Ys_df_sub))
       #To reload new Ys_df in GUI table
       OpenYFile(list(h=lefichierY,action=FALSE))
       
@@ -2027,8 +2029,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       if (!out) return()
       
       if (use_num){
-        Ys_df_sub[,lacol]<<-factor(Ys_df_sub[,lacol])
-        Ys_df[,lacol]<<-factor(Ys_df[,lacol])
+        Ys_df_sub[,lacol]<<-factor(make.names(Ys_df_sub[,lacol]))
+        Ys_df[,lacol]<<-factor(make.names(Ys_df[,lacol]))
       }else
       {  
         if (nlev>0){
