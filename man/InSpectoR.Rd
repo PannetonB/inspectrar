@@ -4,8 +4,7 @@
 \alias{InSpectoR}
 \title{InSpectoR}
 \usage{
-InSpectoR(yfile = NULL, parcomp = TRUE, MainWidth = 1200,
-  MainHeight = 800)
+InSpectoR(yfile = NULL, parcomp = TRUE, MainWidth = 1200, MainHeight = 800)
 }
 \arguments{
 \item{yfile}{to load data associated with this Y data file.

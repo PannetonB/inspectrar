@@ -4,9 +4,16 @@
 \alias{BP_Scatter}
 \title{BP_Scatter}
 \usage{
-BP_Scatter(ax1, ax2, labs = list("X", "Y"), titre = "",
-  xlimits = NULL, ylimits = NULL, colorby = rep(2, length(ax1)),
-  pt.label = NULL)
+BP_Scatter(
+  ax1,
+  ax2,
+  labs = list("X", "Y"),
+  titre = "",
+  xlimits = NULL,
+  ylimits = NULL,
+  colorby = rep(2, length(ax1)),
+  pt.label = NULL
+)
 }
 \arguments{
 \item{ax1}{vector of values on the horizontal axis}

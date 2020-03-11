@@ -4,8 +4,7 @@
 \alias{BP_Spectra_matplot}
 \title{BP_Spectra_matplot}
 \usage{
-BP_Spectra_matplot(x, yID, col_code, subs, xlimits, ylimits,
-  preT = FALSE)
+BP_Spectra_matplot(x, yID, col_code, subs, xlimits, ylimits, preT = FALSE)
 }
 \arguments{
 \item{x}{list of matrices containing spectra. Each matrix is a different type

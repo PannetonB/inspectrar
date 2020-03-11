@@ -4,9 +4,17 @@
 \alias{BP_Plot_Scores}
 \title{BP_Plot_Scores}
 \usage{
-BP_Plot_Scores(ax1, ax2 = NULL, pcs, frac, xlimits = NULL,
-  ylimits = NULL, colorby = rep(2, length(ax1)), pt.label = NULL,
-  ell_option)
+BP_Plot_Scores(
+  ax1,
+  ax2 = NULL,
+  pcs,
+  frac,
+  xlimits = NULL,
+  ylimits = NULL,
+  colorby = rep(2, length(ax1)),
+  pt.label = NULL,
+  ell_option
+)
 }
 \arguments{
 \item{ax1}{horizontal axis value of scores}

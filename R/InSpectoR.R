@@ -613,12 +613,13 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     {
       type <- prepro_params$byspectra_scaling_index
       letest=any(type==2)
-      cntr_n_w <- prepro_par$cntr_n_w
+      cntr_n_w <- prepro_params$cntr_n_w
       gWidgets2::delete(gf1,gf1$children[[1]])
       gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,le_r)
       dum <- as.list(seq_along(type))
       sapply(dum, function(ii){
-        leGradio <- gf1$children[[1]][-1,2][[ii]]
+        dumgf1 <<- gf1
+        leGradio <- gf1$children[[1]][-1,2]
         gWidgets2::svalue(leGradio,index=TRUE) <- as.numeric(type[ii])
       })
       sapply(dum, function(ii){
@@ -705,13 +706,13 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       gWidgets2::delete(gf_savgol,gf_savgol$children[[1]])
       gf_savgol <- build_savgol_widget(XDatalist,gf_savgol)
       sapply(dum, function(ii){
-        lecheck <- gf_savgol$children[[1]][-1,2][[ii]]
+        lecheck <- gf_savgol$children[[1]][-1,2]
         gWidgets2::svalue(lecheck) <- dosavgol[ii]
-        lem <- gf_savgol$children[[1]][-1,4][[ii]]
+        lem <- gf_savgol$children[[1]][-1,4]
         gWidgets2::svalue(lem) <- m[ii]
-        lep <- gf_savgol$children[[1]][-1,5][[ii]]
+        lep <- gf_savgol$children[[1]][-1,5]
         gWidgets2::svalue(lep) <- p[ii]
-        lew <- gf_savgol$children[[1]][-1,3][[ii]]
+        lew <- gf_savgol$children[[1]][-1,3]
         gWidgets2::svalue(lew) <- w[ii]
       })
     }
