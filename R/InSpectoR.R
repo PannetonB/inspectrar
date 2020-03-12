@@ -836,15 +836,14 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       if (N_samples>500){
         wspin<-MakeSpinner()
       }
-      thr=0.001
+      thr=0.0005
       lesACPs <<- lapply(XData_p, function(x) prcomp(x[-1,],tol=thr))
-      #lesNCPs <<- lapply(lesACPs, function(x) ncol(x$rotation))
+      lesNCPs <<- lapply(lesACPs, function(x) ncol(x$rotation))
       var_exp=lapply(lesACPs,function(x) summary(x)$importance[2,])
-      lesNCPs <<- lapply(var_exp, function(x){
-        i2<-as.numeric(which(x<=thr)[1])
-        if (x[i2]==0) i2=i2-1  #in case where few samples.
-        return(2*i2)
-      })
+      # lesNCPs <<- lapply(var_exp, function(x){
+      #   i2<-as.numeric(which(x<=thr)[1])
+      #   if (x[i2]==0) i2=i2-1  #in case where few samples.
+      # })
       
       if (N_samples>500){
         dispose(wspin)
@@ -3010,7 +3009,6 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   updateACPPlot <- function(h,...)
   #Callback for updating PC plot
   {
-    
     gWidgets2::enabled(subset_from_ACPPlotbut) <- FALSE  #point selection cancelled!
     #ISR_env$SelectedScores <- NULL
     
@@ -3026,7 +3024,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     dd<-chemometrics::pcaDiagplot(XData_p[[leX]][-1,],pca2,a=as.numeric(gWidgets2::svalue(nCP_label)),
                                   plot=FALSE,scale=FALSE)
     
-    #Retrieve options (factor to apply color or to label)
+     #Retrieve options (factor to apply color or to label)
     indi_c<-gWidgets2::svalue(pickFactor_4_color,index=TRUE)
     wh_indi_c <- which(names(Ys_df_sub)==pickFactor_4_color[indi_c])
     indi_c<-indi_c-1   #first is none!
@@ -3177,7 +3175,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
            xlab="PC number",
            ylab="Portion of variance explained") 
       abline(v=ncp,col="red")
-      legend("topright",legend=c("Var. Expl.","0.001 threshold"),
+      legend("topright",legend=c("Var. Expl.","0.0005 threshold"),
              lty=c(1,1), col=c("blue","red"),inset=c(0.01,0.01))
     }
     #plot T2 - Q plot
