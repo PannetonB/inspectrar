@@ -173,7 +173,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #******************************************************************************
   #Local variables
   #******************************************************************************
-#-------------------------
+
   #Load logo image in package
   logoimg <- system.file("InSpectraR_Logo_600_130V.png",package="inspectrar")
   if (!file.exists(logoimg)) 
@@ -183,7 +183,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #******************************************************************************
   #Global variables
   #******************************************************************************
-#-------------------------
+
   #ISR_env is used to store global variables for internal use by InSpectoR
   calling_enviro <<- parent.env(environment())
   ISR_env <- new.env(parent=emptyenv())
@@ -235,7 +235,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #******************************************************************************
   #Generic functions
   #******************************************************************************
-#-------------------------
+#- ---
   #Make sure we are in the directory of InSpectoR.R where all accompanying
   #R function files are located so sourcing will work.
   #Trick to ID the directory of InSpectoR.R. Then we can work with relative paths.
@@ -345,19 +345,20 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
           gWidgets2::svalue(h$action[[1]])<-mini+50  #force maxi at least 50 over mini
         
         #Force scaling to "none" if it was "Value" (i.e. i=2) and sets new range for value
-        dum <- gWidgets2::svalue(gf1$children[[1]][k+1,2],index=TRUE)
-        if (dum==2)
-          gWidgets2::svalue(gf1$children[[1]][k+1,2],index=TRUE)<-1
+        # dum <- gWidgets2::svalue(gf1$children[[1]][k+1,2],index=TRUE)
+        # if (dum==2)
+        #   gWidgets2::svalue(gf1$children[[1]][k+1,2],index=TRUE)<-1
         #Get min and max wavelength (number) from gf_truncation
         dum2<-sapply(gf_truncation$children[[1]][-1,-1],gWidgets2::svalue)
         dum2<-matrix(dum2,nrow=N,ncol=2,byrow=FALSE)
+        dum2[,2] <- 0
         #Build the list of min and max for builg_byvalue_widget
         le_r2<-lapply(seq_len(nrow(dum2)), function(i) dum2[i,])
         #Modify list with user selection
-        le_r2[[lek]]<-c(mini,maxi)
+        le_r2[[lek]]<-c(mini,0)
         # #Rebuild the gf_byspectra_scaling_data table
         gWidgets2::delete(gf1,gf1$children[[1]])
-        gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,le_r2)
+        gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,rep(1,length(le_r2)),le_r2)
       })
       gWidgets2::addHandlerChanged(spin_max[[k]], action=c(spin_min[[k]],k,N,le_r), handler=function(h,..) { 
         PreProDone<<-FALSE
@@ -374,39 +375,46 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
           gWidgets2::svalue(h$action[[1]])<-maxi-50  #force mini at least 50 below maxi
         
         #Force scaling to "none" if it was "Value" (i.e. i=2) and sets new range for value
-        dum <- gWidgets2::svalue(gf1$children[[1]][k+1,2],index=TRUE)
-        if (dum==2)
-           gWidgets2::svalue(gf1$children[[1]][k+1,2],index=TRUE)<-1
+        # dum <- gWidgets2::svalue(gf1$children[[1]][k+1,2],index=TRUE)
+        # if (dum==2)
+        #    gWidgets2::svalue(gf1$children[[1]][k+1,2],index=TRUE)<-1
         #Get min and max wavelength (number) from gf_truncation
         dum2<-sapply(gf_truncation$children[[1]][-1,-1],gWidgets2::svalue)
         dum2<-matrix(dum2,nrow=N,ncol=2,byrow=FALSE)
+        dum2[,2] <- 0
         #Build the list of min and max for builg_byvalue_widget
         le_r2<-lapply(seq_len(nrow(dum2)), function(i) dum2[i,])
         #Modify list with user selection
-        le_r2[[lek]]<-c(mini,maxi)
+        le_r2[[lek]]<-c(mini,0)
         # #Rebuild the gf_byspectra_scaling_data table
         delete(gf1,gf1$children[[1]])
-        gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,le_r2)
+        gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,rep(1,length(le_r2)),le_r2)
       })
     }
     return(gf_truncation)
   }
   
   #***********************************************************************
-  build_byvalue_scaling_widget <-function(sp_list,gf_byspectra_scaling_data,le_r)
+  build_byvalue_scaling_widget <-function(sp_list,gf_byspectra_scaling_data,letype,le_r)
     #Build and fills a glayout widget inside the gf_byspectra_scaling_data
     #gframe on the prepro tab for defining wavelength and bandwidth fo spectral
     #data used to compute scaling factor (i.e. mean value over bandwidth).
     #INPUTS:  
     #     sp_list       : the list of selected files (XDatalist)  
     #     gf_byspectra_scaling_data : the parent gframe
-    #     le_r          : list (one element by spectrum type) of cneter and BW (c(Ctre,BW))  
+    #     letype        : vector (1 (none), 2 (by value), 3 (closure))
+    #     le_r          : list (one element by spectrum type) of center and BW (c(Ctre,BW))  
     
   {
     #Empty lists for center and range values for the scaling area.
     spin_centre <- list()
     spin_bw <- list()
     byspectra_type <- list()
+    
+   
+    lim_wid <- gf_truncation$children[[1]]
+    trunc_limits <- matrix(sapply(lim_wid[-1,-1],gWidgets2::svalue),ncol=2,byrow=FALSE)
+    lesRanges <- lapply(seq_len(nrow(trunc_limits)), function(i) trunc_limits[i,])
     
     #Array of gspinbutton for mini and maxi
     lyt2<-gWidgets2::glayout(cont=gf_byspectra_scaling_data)   
@@ -426,18 +434,19 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       lyt2[k+1,1] <- labs[[k]]
       lyt2[k+1,2] <- (byspectra_type[[k]] <- gWidgets2::gradio(c("None      ","Value          ",
                                                "Mean=1    "),
+                                             selected = letype[k],   
                                              horizontal = TRUE,
                                              cont=lyt2,
                                              handler=function(h,...){ 
                                                PreProDone <<- FALSE
                                              }
       ))
-      lyt2[k+1,3] <- (spin_centre[[k]] <- gWidgets2::gspinbutton(le_r[[k]][1]+1,le_r[[k]][2],1,value=le_r[[k]][1],cont=lyt2))
-      lyt2[k+1,4] <- (spin_bw[[k]] <- gWidgets2::gspinbutton(0,100,1,value=0,cont=lyt2))
+      lyt2[k+1,3] <- (spin_centre[[k]] <- gWidgets2::gspinbutton(lesRanges[[k]][1],lesRanges[[k]][2],1,value=le_r[[k]][1],cont=lyt2))
+      lyt2[k+1,4] <- (spin_bw[[k]] <- gWidgets2::gspinbutton(0,100,1,value=le_r[[k]][2],cont=lyt2))
       
     }
     for (k in 1:N){
-      gWidgets2::addHandlerChanged(spin_centre[[k]], action=list(spin_bw[[k]],N,le_r,k), handler=function(h,..){
+      gWidgets2::addHandlerChanged(spin_centre[[k]], action=list(spin_bw[[k]],N,lesRanges,k), handler=function(h,..){
         PreProDone<<-FALSE
         bw<-gWidgets2::svalue(h$action[[1]])
         NN<-h$action[[2]]
@@ -449,7 +458,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
         }
         if ((ctr+bw)>mon_r[[lek]][2]){   #end of bw over range, adjust centre value
           gWidgets2::svalue(h$obj)<-mon_r[[lek]][2]-bw
-          
+
         }
       })
       gWidgets2::addHandlerChanged(spin_bw[[k]], action=list(spin_centre[[k]],le_r,k), handler=function(h,..){
@@ -570,11 +579,11 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #   gWidgets2::delete(gf_truncation,gf_truncation$children[[1]])
   # gf_truncation<-build_truncation_widget(XDatalist,gf_truncation,le_r)
   # gWidgets2::delete(gf1,gf1$children[[1]])
-  # gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,le_r)
+  # gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,letype,le_r)
   # gWidgets2::delete(gf_savgol,gf_savgol$children[[1]])
   # gf_savgol <- build_savgol_widget(XDatalist,gf_savgol)
   {
-    #Truncation
+    #-----Truncation-----
     if (is.null(prepro_par)){  #retrieve from GUI
       N=length(XData)
       lim_wid <- gf_truncation$children[[1]]
@@ -593,8 +602,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       wl<-XData[[x]][1,]
       XData_p[[x]] <<- XData[[x]][,((wl>=trunc_limits[x,1]) & (wl<=trunc_limits[x,2]))]
     }) 
-    
-    #Then per_spectra normalization - value
+
+    #-----Then per_spectra normalization - value-----
     if (is.null(prepro_par)){   #retrieve from GUI
       N=length(XData_p)
       if (N>1){
@@ -614,20 +623,10 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       type <- prepro_params$byspectra_scaling_index
       letest=any(type==2)
       cntr_n_w <- prepro_params$cntr_n_w
+      #load into GUI
+      le_r <- lapply(seq_len(nrow(cntr_n_w)), function(i) cntr_n_w[i,])
       gWidgets2::delete(gf1,gf1$children[[1]])
-      gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,le_r)
-      dum <- as.list(seq_along(type))
-      sapply(dum, function(ii){
-        dumgf1 <<- gf1
-        leGradio <- gf1$children[[1]][-1,2]
-        gWidgets2::svalue(leGradio,index=TRUE) <- as.numeric(type[ii])
-      })
-      sapply(dum, function(ii){
-        lacase <- gf1$children[[1]][ii+1,3]
-        gWidgets2::svalue(lacase) <- cntr_n_w[ii,1]
-        lacase <- gf1$children[[1]][ii+1,4]
-        gWidgets2::svalue(lacase) <- cntr_n_w[ii,2]
-      })
+      gf1<-build_byvalue_scaling_widget(XDatalist,gf1,type,le_r)
       
     }
     if (letest){
@@ -644,7 +643,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       })
     }
     
-    #Then per_spectra normalization - closure
+    #-----Then per_spectra normalization - closure-----
     if (is.null(prepro_par)){   #retrieve from GUI
       N=length(XData)
       if (N>1){
@@ -672,7 +671,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       })
     } 
     
-    #Then Savitzky-Golay
+    #-----Then Savitzky-Golay-----
     if (is.null(prepro_par)){    #retrieve from GUI
       N=length(XData)
       if (N>1){
@@ -706,13 +705,13 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       gWidgets2::delete(gf_savgol,gf_savgol$children[[1]])
       gf_savgol <- build_savgol_widget(XDatalist,gf_savgol)
       sapply(dum, function(ii){
-        lecheck <- gf_savgol$children[[1]][-1,2]
+        lecheck <- gf_savgol$children[[1]][(ii+1),2]
         gWidgets2::svalue(lecheck) <- dosavgol[ii]
-        lem <- gf_savgol$children[[1]][-1,4]
+        lem <- gf_savgol$children[[1]][ii+1,4]
         gWidgets2::svalue(lem) <- m[ii]
-        lep <- gf_savgol$children[[1]][-1,5]
+        lep <- gf_savgol$children[[1]][ii+1,5]
         gWidgets2::svalue(lep) <- p[ii]
-        lew <- gf_savgol$children[[1]][-1,3]
+        lew <- gf_savgol$children[[1]][ii+1,3]
         gWidgets2::svalue(lew) <- w[ii]
       })
     }
@@ -741,7 +740,9 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
         }
         rbind(wl[[k]],X[[k]]) #rebuild matrices with wl
       })
+      
     }
+    #-----end----
     return()
   }
   
@@ -767,16 +768,16 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #******************************************************************************
   #Handlers for widgets
   #******************************************************************************
-#-------------------------
+
   #temporary empty widget so it is recognized in handlers
   pick_data_4_PCA <- gWidgets2::gcombobox("")
 
   
-#Widgets on mymain-------------------------  
+    #Widgets on mymain-------------------------  
   #/././././././././././././././././././././././
   #Widgets on mymain
   #/././././././././././././././././././././././
-#-------------------------
+
   #*************************************************************
   nb_handler <- function(h,...)
   # Handler when switching between gnotebook tabs.
@@ -928,11 +929,11 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   } 
   
   
-#Widgets on apply_tab-------------------------  
+    #Widgets on apply_tab-------------------------  
   #/././././././././././././././././././././././
   #Widgets on apply_tab
   #/././././././././././././././././././././././
-#-------------------------
+
   
   #*************************************************************  
   apply_pca_model<-function(h,...)
@@ -1487,11 +1488,11 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
    }
   
     
-#Widgets on data_tab------------------------- 
+    #Widgets on data_tab------------------------- 
   #/././././././././././././././././././././././
   #Widgets on data_tab
   #/././././././././././././././././././././././
-#-------------------------
+
   #*************************************************************
   OpenYFile<-function(h,...)
   # Handler for lefichierY widget.
@@ -1887,7 +1888,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       gWidgets2::delete(gf_truncation,gf_truncation$children[[1]])
       gf_truncation<-build_truncation_widget(XDatalist,gf_truncation,le_r)
       gWidgets2::delete(gf1,gf1$children[[1]])
-      gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,le_r)
+      le_r <- lapply(le_r,function(x) x<-c(x[1],0))
+      gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,rep(1,length(le_r)),le_r)
       gWidgets2::delete(gf_savgol,gf_savgol$children[[1]])
       gf_savgol <- build_savgol_widget(XDatalist,gf_savgol)
       
@@ -1948,6 +1950,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     if (N_samples>500){
       dispose(wspin)
     }
+    
     enabled(selection$obj) <- TRUE  #Allow changing selection in lesX
     if (!have_data[[1]]$widget$visible) lapply(have_data,function(x) x$widget$show())
   }
@@ -2849,10 +2852,11 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     addRightclickPopupMenu(g,l)                           
   }
   
-#Widgets on prepro_tab-------------------------
+    #Widgets on prepro_tab-------------------------
   #/././././././././././././././././././././././
   #Widgets on prepro_tab
   #/././././././././././././././././././././././
+
   
   #******************************************************************************
   save_prepro <- function(h,...)
@@ -2950,9 +2954,13 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     #Create a list of data types available in the current data set.
     #Then get data types.
-    dum=as.list(levels(lesX[,1]))
+    
+    
+    dum=as.list(levels(as.factor(lesX[,1])))
     xType=get_DataType_Names(dum)  
     #Find indices of data types required by the model
+    
+    
     indix=pmatch(model_descript$datatype,xType)
     if (any(is.na(indix))){  #no match, cannot apply model
       gWidgets2::gmessage(title="ABORTING!",
@@ -2974,13 +2982,13 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   }
   #*************************************************************
     
-#-------------------------  
-#Widgets on pca_tab-------------------------  
+
+    #Widgets on pca_tab-------------------------  
   #/././././././././././././././././././././././
   #Widgets on pca_tab
   #/././././././././././././././././././././././
   
-#-------------------------
+
   
 #******************************************************************************
   MonACP <- function(h,...)
@@ -3466,12 +3474,12 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     addRightclickPopupMenu(g,l)                           
   }                
   
-#Widgets on plsda_tab-------------------------  
+    #Widgets on plsda_tab-------------------------  
   #/././././././././././././././././././././././
   #Widgets on plsda_tab
   #/././././././././././././././././././././././
   
-#-------------------------
+
   
   #******************************************************************************
   Compute_PLSDA <- function(h,...)
@@ -3744,12 +3752,12 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     addRightclickPopupMenu(g,l)                           
   }                
   
-#Widgets on pls_tab------------------------- 
+    #Widgets on pls_tab------------------------- 
   #/././././././././././././././././././././././
   #Widgets on pls_tab
   #/././././././././././././././././././././././
   
-#-------------------------
+
   
   #****************************************************************************
   Compute_PLS <- function(h,...)
@@ -4075,7 +4083,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   
   #Base window tab-------------------------
   #Base window with logo and an empty notebook
-  #-------------------------
+
   main_title<-paste("InSpectoR",ISR_env$laversion," - ",ISR_env$ladate)
   mymain <- gWidgets2::gwindow(main_title, visible=FALSE,
                   width=MainWidth, height=MainHeight,
@@ -4105,7 +4113,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   
   #Data selection tab-------------------------
   #Tab for data selection and viewing
-  #-------------------------
+
   data_tab <- gWidgets2::ggroup(container=nb,label="Data selection",horizontal=FALSE)
   nb$add_tab_tooltip(index_data, "Select data for subsequent processing and modeling. View raw data")
   
@@ -4263,7 +4271,7 @@ If min=0 and max=0 -> reset to full scale.",
   
   #Apply tab-------------------------
   #Tab for application of stored models
-  #-------------------------
+
   apply_tab <- gWidgets2::ggroup(container=nb,label="Apply models",horizontal=FALSE)
   nb$add_tab_tooltip(index_applymods, "Apply stored models to current data.")
   
@@ -4283,7 +4291,7 @@ If min=0 and max=0 -> reset to full scale.",
   
   #Prepro tab -------------------------
   #Tab for preprocessing
-  #-------------------------
+
   # NOTE : PreProDone must be set to FALSE when any option is changed.
   prepro_tab <- gWidgets2::ggroup(cont=nb,label="PrePro", use.scrollwindow = T)
   nb$add_tab_tooltip(index_prepro, "Define data preprocessing steps to selected spectrum types. They will be applied from top to bottom.")
@@ -4330,7 +4338,7 @@ If min=0 and max=0 -> reset to full scale.",
   
   #PCA tab-------------------------
   #Tab for PCA
-  #-------------------------
+
   pca_tab <- gWidgets2::ggroup(cont=nb,label="PCA")
   nb$add_tab_tooltip(index_acp, "Perform PCA on preprocessed data and graphically display results.")
   
@@ -4485,7 +4493,7 @@ If min=0 and max=0 -> reset to full scale.",
   
   #PLSDA tab-------------------------
   #Tab for PLSDA
-  #-------------------------
+
   plsda_tab <- gWidgets2::ggroup(cont=nb,label="PLSDA")
   nb$add_tab_tooltip(index_plsda, "Perform PLSDA on preprocessed data and graphically display results. Text outputs are displayed in the Console frame.")
 
@@ -4807,7 +4815,7 @@ If min=0 and max=0 -> reset to full scale.",
   
   #PLS tab-------------------------
   #Tab for PLS
-  #-------------------------
+  
   pls_tab <- gWidgets2::ggroup(cont=nb,label="PLS")
   nb$add_tab_tooltip(index_pls, "Perform PLS on preprocessed data and graphically display results. Text outputs are displayed in the Console frame.")
   
@@ -5077,7 +5085,7 @@ If min=0 and max=0 -> reset to full scale.",
   #******************************************************************************
   #Initialise-------------------------
   #Initialise
-  #-------------------------
+ 
  
   # #Initialise l'interface
   gWidgets2::svalue(logo) <- logoimg 
