@@ -187,8 +187,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   #ISR_env is used to store global variables for internal use by InSpectoR
   calling_enviro <<- parent.env(environment())
   ISR_env <- new.env(parent=emptyenv())
-  ISR_env$laversion<-"0.1.1" #Version of InSpectoR
-  ISR_env$ladate <- "November 2019"    #Date of current version
+  ISR_env$laversion<-"1.0.0" #Version of InSpectoR
+  ISR_env$ladate <- "January 2022"    #Date of current version
   index_data <<- 1          #gnotebook page number for data_tab
   index_applymods <<- 2     #gnotebook page number for apply_tab
   index_prepro <<- 3        #gnotebook page number for prepro_tab
@@ -1028,8 +1028,9 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     #Create a list of data types available in the current data set.
     #Then get data types.
-    dum=as.list(levels(lesX[,1]))
-    xType=get_DataType_Names(dum)  
+    dum=as.list(lesX[,1])
+    xType=get_DataType_Names(dum)
+   
     #Find indices of data types required by the model
     indix=pmatch(model_descript$datatype,xType)
     if (any(is.na(indix))){  #no match, cannot apply model
@@ -1260,7 +1261,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     #Create a list of data types available in the current data set.
     #Then get data types.
-    dum=as.list(levels(lesX[,1]))
+    dum=as.list(lesX[,1])
     xType=get_DataType_Names(dum)  
     #Find indices of data types required by the model
     indix=pmatch(model_descript$datatype,xType)
@@ -1405,7 +1406,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     #Create a list of data types available in the current data set.
     #Then get data types.
-    dum=as.list(levels(lesX[,1]))
+    dum=as.list(lesX[,1])
     xType=get_DataType_Names(dum)  
     #Find indices of data types required by the model
     indix=pmatch(model_descript$datatype,xType)
