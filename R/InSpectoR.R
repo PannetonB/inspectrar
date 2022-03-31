@@ -3674,9 +3674,14 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     dums <- MakeSpinner()
     
+    #Find selected  X data files
+    selected <- gWidgets2::svalue(Xdat_4_plsda)
+    laDatalist <- as.character(selected)
+   
+    
     model_descript=list(type="PLSDA",
                         description=description,
-                        datatype=get_DataType_Names(XDatalist),
+                        datatype=laDatalist,
                         aggregation=gWidgets2::svalue(aggregate_options)$'Aggregation operator: ')
     pls_ncomp <- lapply(plsdaFit,function(x) x$bestTune$ncomp)
     
@@ -3886,9 +3891,13 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     dums <- MakeSpinner()
     
+    #Find selected  X data files
+    selected <- gWidgets2::svalue(Xdat_4_pls)
+    laDatalist <- as.character(selected)
+    
     model_descript=list(type="PLS",
                         description=description,
-                        datatype=get_DataType_Names(XDatalist),
+                        datatype=laDatalist,
                         aggregation=gWidgets2::svalue(pls_aggregate_options)$'Aggregation method: ')
     pls_ncomp <- gWidgets2::svalue(pls_user_ncomp)
     
