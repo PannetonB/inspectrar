@@ -1,6 +1,6 @@
 # inspectrar
 
-**NOTE: *inspectrar* is no longer support**. The package *Gwidgets2* no longer works with the *RGtk2* toolkit that was used to build the graphical interface. The supported *tcltk* tool kit does not work as support for interacting with graphic objects is quite different when compared to *GTk2*. (as of April 2022). A Shiny app version is under construction and may be released in the coming months. If you need to use the package, it runs smoothly on **R version 4.0.3** with versions 1.0-8, 1.0-7 of the ***gWidgets2*** and ***gWidgets2RGtk2*** packages respectively.
+**NOTE: *inspectrar* is no longer supported**. The package *Gwidgets2* no longer works with the *RGtk2* toolkit that was used to build the graphical interface. The supported *tcltk* tool kit does not work as support for interacting with graphic objects is quite different when compared to *GTk2*. (as of April 2022). A Shiny app version is under construction and may be released in the coming months. If you need to use the package, it runs smoothly on **R version 4.0.3** with versions 1.0-8, 1.0-7 of the ***gWidgets2*** and ***gWidgets2RGtk2*** packages respectively.
 
 This R package bundles **InSpectoR**, a GUI based script for optical spectroscopy data  
 visualisation and editing. It also contains tools for developing basic chemometrics models.  
