@@ -3677,7 +3677,21 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     #Find selected  X data files
     selected <- gWidgets2::svalue(Xdat_4_plsda)
     laDatalist <- as.character(selected)
+    cat("\n",laDatalist,"\n")
+    indSelected <- gWidgets2::svalue(Xdat_4_plsda, index = TRUE)
+    cat("\n",indSelected,"\n")
    
+    #local copy of prepro_params, not the global one
+    prepro_params <- lapply(prepro_params, function(lepar){
+      if(is.null(dim(lepar))){
+        lepar[indSelected]
+      }else
+      {
+        lepar[indSelected,]
+      }
+    })
+    
+    print(prepro_params); cat("\n")
     
     model_descript=list(type="PLSDA",
                         description=description,
@@ -3894,7 +3908,20 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     #Find selected  X data files
     selected <- gWidgets2::svalue(Xdat_4_pls)
     laDatalist <- as.character(selected)
+    indSelected <- gWidgets2::svalue(Xdat_4_pls, index = TRUE)
     
+    print(selected);cat("\n");print(indSelected);cat("\n")
+    
+    #local copy of prepro_params, not the global one
+    prepro_params <- lapply(prepro_params, function(lepar){
+      if(is.null(dim(lepar))){
+        lepar[indSelected]
+      }else
+      {
+        lepar[indSelected,]
+      }
+    })
+   
     model_descript=list(type="PLS",
                         description=description,
                         datatype=laDatalist,
