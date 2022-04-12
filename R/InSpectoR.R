@@ -330,7 +330,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     #applies when acting on maxi. Absolute mini and maxi are set by the definition
     #of the gspinbutton.
     for (k in 1:N){
-      gWidgets2::addHandlerChanged(spin_min[[k]], action=c(spin_max[[k]],k,N,le_r), handler=function(h,..) { 
+      gWidgets2::addHandlerChanged(spin_min[[k]], action=c(spin_max[[k]],k,N,le_r[k]), handler=function(h,..) { 
         PreProDone<<-FALSE
         mini <- gWidgets2::svalue(h$obj)
         maxi <- gWidgets2::svalue(h$action[[1]])
@@ -360,7 +360,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
         gWidgets2::delete(gf1,gf1$children[[1]])
         gf1 <- build_byvalue_scaling_widget(XDatalist,gf1,rep(1,length(le_r2)),le_r2)
       })
-      gWidgets2::addHandlerChanged(spin_max[[k]], action=c(spin_min[[k]],k,N,le_r), handler=function(h,..) { 
+      gWidgets2::addHandlerChanged(spin_max[[k]], action=c(spin_min[[k]],k,N,le_r[k]), handler=function(h,..) { 
         PreProDone<<-FALSE
         maxi <- gWidgets2::svalue(h$obj)
         mini <- gWidgets2::svalue(h$action[[1]])
