@@ -3324,7 +3324,20 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     wh_indi_c <- which(names(Ys_df_sub)==pickFactor_4_color[indi_c])
     colorby<-Ys_df_sub[,wh_indi_c]
     
-    save(model_descript,prepro_params,lesACPs,lesNCPs,colorby, file=ff) 
+    #Add distances to model output
+    dds <- lapply(1:length(lesACPs), function(k){
+      resACP<-lesACPs[[k]]
+      #pr_2_prin is for converting prcomp output to princomp output
+      pca2<-pr_2_prin(resACP)
+      #Compute score and orthogonal distances
+      chemometrics::pcaDiagplot(XData_p[[k]][-1,],
+                                    pca2,a=lesNCPs[[k]],
+                                    plot=FALSE,scale=FALSE)
+      
+      
+    })
+    
+    save(model_descript,prepro_params,lesACPs,lesNCPs,dds,colorby, file=ff) 
     
     dispose(dums)
   }
