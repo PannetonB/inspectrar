@@ -4403,7 +4403,10 @@ If min=0 and max=0 -> reset to full scale.",
   
   #Show number of PCs for 99,5% of variance explained.
   tmp<-gWidgets2::gframe("Estimated number of significant PCs",container=group_acp,horizontal=FALSE)
-  nCP_label <- gWidgets2::glabel("Wait for data",expand=TRUE)
+  nCP_label <- gWidgets2::gslider(0,30,1,value=5, handler = function(h,...){
+    leX <- gWidgets2::svalue(pick_data_4_PCA,index=TRUE)
+    lesNCPs[[leX]] <<- svalue(h$obj)
+  })#("Wait for data",expand=TRUE)
   gWidgets2::font(nCP_label) <- list(weight="bold")
   gWidgets2::add(tmp,nCP_label)
   
