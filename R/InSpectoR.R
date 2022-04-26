@@ -4725,6 +4725,7 @@ If min=0 and max=0 -> reset to full scale.",
                               lescl<-Predict_plsda(plsdaFit,plsda_set,probs=FALSE)
                               letest <- lescl==plsda_set[[1]][,1]
                               pr<-data.frame(NoSeq=Ys_df_sub$NoSeq,
+                                             EchID=Ys_df_sub[,1],
                                             True_Cl=plsda_set[[1]][,1],
                                             Pred_Cl=lescl,
                                             Test=letest,
@@ -4733,8 +4734,8 @@ If min=0 and max=0 -> reset to full scale.",
                               dumg <- gWidgets2::ggroup(cont=dumw)
                               dumtbl <- gWidgets2::gtable(pr, cont=dumg,expand=TRUE, fill=TRUE)
                               dumf<-gWidgets2::gfilter(dumtbl,
-                                                       initial.vars = data.frame(colnames(pr)[c(2,3)],
-                                                                                 colnames(pr)[c(2,3)],
+                                                       initial.vars = data.frame(colnames(pr)[c(3,4)],
+                                                                                 colnames(pr)[c(3,4)],
                                                                                  c("single","multiple"),
                                                                                  stringsAsFactors=FALSE),
                                             allow.edit = TRUE,
