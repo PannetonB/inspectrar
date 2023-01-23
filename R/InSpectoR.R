@@ -1028,7 +1028,12 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     #Create a list of data types available in the current data set.
     #Then get data types.
-    dum=as.list(lesX[,1])
+    #Trick to acccomodate R 3.6.3 and R 4.0.3 - Jan. 2023
+    if (is.null(levels(lesX[,1]))){
+      dum = as.list(lesX[,1])
+    }else dum=as.list(levels(lesX[,1]))
+    #dum=as.list(lesX[,1])
+    
     xType=get_DataType_Names(dum)
    
     #Find indices of data types required by the model
@@ -1261,8 +1266,14 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     #Create a list of data types available in the current data set.
     #Then get data types.
-    dum=as.list(lesX[,1])
+    #Then get data types.
+    #Trick to acccomodate R 3.6.3 and R 4.0.3 - Jan. 2023
+    if (is.null(levels(lesX[,1]))){
+      dum = as.list(lesX[,1])
+    }else dum=as.list(levels(lesX[,1]))
+    #dum=as.list(lesX[,1])
     xType=get_DataType_Names(dum)  
+    
     #Find indices of data types required by the model
     indix=pmatch(model_descript$datatype,xType)
     if (any(is.na(indix))){  #no match, cannot apply model
@@ -1406,7 +1417,13 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     #Create a list of data types available in the current data set.
     #Then get data types.
-    dum=as.list(lesX[,1])
+    #Then get data types.
+    #Trick to acccomodate R 3.6.3 and R 4.0.3 - Jan. 2023
+    if (is.null(levels(lesX[,1]))){
+      dum = as.list(lesX[,1])
+    }else dum=as.list(levels(lesX[,1]))
+    #dum=as.list(lesX[,1])
+    
     xType=get_DataType_Names(dum)  
     #Find indices of data types required by the model
     indix=pmatch(model_descript$datatype,xType)
