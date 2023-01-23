@@ -2911,7 +2911,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
   load_prepro<-function(h,...){
     
     ff<-""
-    dlg = gWidgets2::gbasicdialog(title="Select PCA model", width=500,handler=function(h,...){
+    dlg = gWidgets2::gbasicdialog(title="Select PrePro", width=500,handler=function(h,...){
       ff<<-lefile
       rm(lefile,envir = .GlobalEnv)
     })
@@ -2924,6 +2924,7 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       dum$window$hide()
       lefile<<-gWidgets2::gfile("Pick a PrePro options file",
                                 filter=list("RData files" = list(patterns=c("*.RData"))))
+      
       gWidgets2::insert(texte,lefile,do.newline = TRUE)
       gWidgets2::insert(texte,"\n")
       load(lefile, envir = .GlobalEnv)
