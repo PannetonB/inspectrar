@@ -2912,8 +2912,8 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
     
     ff<-""
     dlg = gWidgets2::gbasicdialog(title="Select PrePro", width=500,handler=function(h,...){
-      ff<<-lefile
-      rm(lefile,envir = .GlobalEnv)
+        ff<<-lefile
+        rm(lefile,envir = .GlobalEnv)
     })
     gWidgets2::size(dlg)<-c(500,500)
     gv=gWidgets2::gvbox(container = dlg,fill=TRUE)
@@ -2924,39 +2924,42 @@ InSpectoR <- function(yfile=NULL,parcomp=TRUE,MainWidth=1200,MainHeight=800)
       dum$window$hide()
       lefile<<-gWidgets2::gfile("Pick a PrePro options file",
                                 filter=list("RData files" = list(patterns=c("*.RData"))))
-      
+     
       gWidgets2::insert(texte,lefile,do.newline = TRUE)
       gWidgets2::insert(texte,"\n")
-      load(lefile, envir = .GlobalEnv)
-      Encoding(model_descript$description) <- "UTF-8"
-      gWidgets2::insert(texte,model_descript$description)
-      gWidgets2::insert(texte,"\n")
-      gWidgets2::insert(texte,model_descript)
-      gWidgets2::insert(texte,"\n")
-      gWidgets2::insert(texte,"Truncation limits: ")
-      gWidgets2::insert(texte,toString(prepro_params$trunc_limits[,1]))
-      gWidgets2::insert(texte,toString(prepro_params$trunc_limits[,2]))
-      gWidgets2::insert(texte,"By spectra scaling selection (1-none, ...): ")
-      gWidgets2::insert(texte,toString(prepro_params$byspectra_scaling_index))
-      gWidgets2::insert(texte,"Center and BW for by value scaling: ")
-      gWidgets2::insert(texte,toString(prepro_params$cntr_n_w[,1]))
-      gWidgets2::insert(texte,toString(prepro_params$cntr_n_w[,2]))
-      gWidgets2::insert(texte,"Flag for SavGol: ")
-      gWidgets2::insert(texte,toString(prepro_params$do_savgol))
-      gWidgets2::insert(texte,"Derivative order for SavGol: ")
-      gWidgets2::insert(texte,toString(prepro_params$m))
-      gWidgets2::insert(texte,"Polynomial order for SavGol: ")
-      gWidgets2::insert(texte,toString(prepro_params$p))
-      gWidgets2::insert(texte,"Window size for SavGol: ")
-      gWidgets2::insert(texte,toString(prepro_params$w))
+      if (length(lefile)>0){
+        load(lefile, envir = .GlobalEnv)
+        Encoding(model_descript$description) <- "UTF-8"
+        gWidgets2::insert(texte,model_descript$description)
+        gWidgets2::insert(texte,"\n")
+        gWidgets2::insert(texte,model_descript)
+        gWidgets2::insert(texte,"\n")
+        gWidgets2::insert(texte,"Truncation limits: ")
+        gWidgets2::insert(texte,toString(prepro_params$trunc_limits[,1]))
+        gWidgets2::insert(texte,toString(prepro_params$trunc_limits[,2]))
+        gWidgets2::insert(texte,"By spectra scaling selection (1-none, ...): ")
+        gWidgets2::insert(texte,toString(prepro_params$byspectra_scaling_index))
+        gWidgets2::insert(texte,"Center and BW for by value scaling: ")
+        gWidgets2::insert(texte,toString(prepro_params$cntr_n_w[,1]))
+        gWidgets2::insert(texte,toString(prepro_params$cntr_n_w[,2]))
+        gWidgets2::insert(texte,"Flag for SavGol: ")
+        gWidgets2::insert(texte,toString(prepro_params$do_savgol))
+        gWidgets2::insert(texte,"Derivative order for SavGol: ")
+        gWidgets2::insert(texte,toString(prepro_params$m))
+        gWidgets2::insert(texte,"Polynomial order for SavGol: ")
+        gWidgets2::insert(texte,toString(prepro_params$p))
+        gWidgets2::insert(texte,"Window size for SavGol: ")
+        gWidgets2::insert(texte,toString(prepro_params$w))
+      }
       dum$window$show()
     })
     
     
-    
+   
     texte=gWidgets2::gtext("",container=gv,expand=TRUE)
     dum <- gWidgets2::visible(dlg)
     if (!dum) return()
+   
     
     
     load(ff,envir = .GlobalEnv)
